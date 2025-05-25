@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Аналитика пользователей{% endblock %}
+{% block content %}
+<div class="container">
+    <h2>Аналитика пользователей</h2>
+    
+    <!-- Таблица аналитики пользователей -->
+    <div class="users-analytics">
+        <h3>Статистика дежурств по сотрудникам</h3>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ФИО</th>
+                        <th>Дежурства (месяц)</th>
+                        <th>Часы (месяц)</th>
+                        <th>Дежурства (квартал)</th>
+                        <th>Часы (квартал)</th>
+                        <th>Дежурства (год)</th>
+                        <th>Часы (год)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.last_name }} {{ user.first_name }} {{ user.middle_name }}</td>
+                        <td>{{ user.monthly_duties }}</td>
+                        <td>{{ user.monthly_hours }}</td>
+                        <td>{{ user.quarterly_duties }}</td>
+                        <td>{{ user.quarterly_hours }}</td>
+                        <td>{{ user.yearly_duties }}</td>
+                        <td>{{ user.yearly_hours }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7">Нет данных о пользователях.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Экспорт данных -->
+    <div class="export-options">
+        <a href="?export_xlsx=1" class="btn">Экспорт в XLSX</a>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    h2 {
+        margin-bottom: 20px;
+        color: #2c3e50;
+    }
+    
+    h3 {
+        margin: 15px 0;
+        color: #34495e;
+    }
+    
+    .users-analytics {
+        margin-bottom: 30px;
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+        margin-bottom: 20px;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    
+    th, td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+    
+    th {
+        background-color: #3498db;
+        color: white;
+        font-weight: bold;
+    }
+    
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    
+    .export-options {
+        margin: 20px 0;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .btn {
+        display: inline-block;
+        padding: 8px 15px;
+        background-color: #3498db;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        margin-right: 10px;
+    }
+    
+    .btn:hover {
+        background-color: #2980b9;
+    }
+    
+    /* Темная тема */
+    .dark-theme h2, .dark-theme h3 {
+        color: #ecf0f1;
+    }
+    
+    .dark-theme table {
+        border-color: #3d3d3d;
+    }
+    
+    .dark-theme th, .dark-theme td {
+        border-color: #3d3d3d;
+    }
+    
+    .dark-theme th {
+        background-color: #3498db;
+        color: white;
+    }
+    
+    .dark-theme tr:nth-child(even) {
+        background-color: #2d2d2d;
+    }
+    
+    .dark-theme tr:nth-child(odd) {
+        background-color: #1e1e1e;
+    }
+</style>
+{% endblock %}

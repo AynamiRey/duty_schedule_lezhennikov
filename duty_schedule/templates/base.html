@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Система управления дежурствами{% endblock %}</title>
+    <!-- Загрузка статических файлов -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- Подключение шрифтов -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Подключение иконок Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Подключение CSS -->
+    <link rel="stylesheet" href="{% static 'css/dark-theme.css' %}" id="theme-style">
+    <link rel="icon" href="{% static 'favicon.png' %}" type="image/x-icon">
+    <style>
+        /* Новые стили для современного header и меню навигации */
+        :root {
+            --header-bg: #ffffff;
+            --header-shadow: rgba(0, 0, 0, 0.05);
+            --header-text: #2c3e50;
+            --nav-link: #4a5568;
+            --nav-link-hover: #3498db;
+            --nav-link-hover-bg: rgba(52, 152, 219, 0.1);
+            --nav-link-active: #3498db;
+            --nav-link-active-bg: rgba(52, 152, 219, 0.15);
+            --logo-color: #3498db;
+            --theme-toggle-bg: #f8f9fa;
+            --theme-toggle-color: #4a5568;
+            --theme-toggle-hover: #e2e8f0;
+            --notification-bg: #f8f9fa;
+            --notification-border: #e2e8f0;
+            --notification-text: #4a5568;
+            --notification-shadow: rgba(0, 0, 0, 0.1);
+            --mobile-menu-bg: #ffffff;
+        }
+        
+        /* Стили для темного режима */
+        [data-theme="dark"] {
+            --header-bg: #1a202c;
+            --header-shadow: rgba(0, 0, 0, 0.3);
+            --header-text: #e2e8f0;
+            --nav-link: #a0aec0;
+            --nav-link-hover: #63b3ed;
+            --nav-link-hover-bg: rgba(99, 179, 237, 0.15);
+            --nav-link-active: #63b3ed;
+            --nav-link-active-bg: rgba(99, 179, 237, 0.25);
+            --logo-color: #63b3ed;
+            --theme-toggle-bg: #2d3748;
+            --theme-toggle-color: #a0aec0;
+            --theme-toggle-hover: #4a5568;
+            --notification-bg: #2d3748;
+            --notification-border: #4a5568;
+            --notification-text: #e2e8f0;
+            --notification-shadow: rgba(0, 0, 0, 0.5);
+            --mobile-menu-bg: #1a202c;
+            --notification-panel-bg: #1a202c;
+            --notification-header-bg: #2d3748;
+        }
+        
+        body {
+            font-family: 'Rubik', 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease;
+        }
+        
+        .header {
+            background-color: var(--header-bg);
+            box-shadow: 0 4px 12px var(--header-shadow);
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .header-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            height: 70px;
+            position: relative;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-icon {
+            color: var(--logo-color);
+            font-size: 24px;
+            margin-right: 12px;
+        }
+        
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--header-text);
+            transition: color 0.3s ease;
+        }
+        
+        .nav {
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+            gap: 0.5rem;
+        }
+        
+        .nav-item {
+            margin: 0;
+            position: relative;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--nav-link);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.625rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--nav-link-hover);
+            background-color: var(--nav-link-hover-bg);
+            transform: translateY(-2px);
+        }
+        
+        .nav-link.active {
+            color: var(--nav-link-active);
+            background-color: var(--nav-link-active-bg);
+        }
+        
+        .nav-link i {
+            font-size: 18px;
+        }
+        
+        /* Кнопка переключения темы */
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--theme-toggle-bg);
+            border: none;
+            color: var(--theme-toggle-color);
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .theme-toggle:hover {
+            background-color: var(--theme-toggle-hover);
+            transform: translateY(-2px);
+        }
+        
+        /* Кнопка мобильного меню */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--nav-link);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0.5rem;
+            margin-left: 1rem;
+        }
+        
+        /* Стили для уведомлений */
+        .notifications {
+            max-width: 1280px;
+            margin: 1rem auto;
+            padding: 0 1.5rem;
+        }
+        
+        .notification {
+            background-color: var(--notification-bg);
+            border: 1px solid var(--notification-border);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            padding: 0.875rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px var(--notification-shadow);
+            animation: slideIn 0.3s ease;
+            transition: all 0.3s ease;
+        }
+        
+        .notification.unread {
+            border-left: 4px solid var(--nav-link-active);
+        }
+        
+        .notification.read {
+            opacity: 0.7;
+            border-left: 4px solid transparent;
+        }
+        
+        .notification-content {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .notification-message {
+            color: var(--notification-text);
+            font-weight: 500;
+        }
+        
+        .notification small {
+            color: var(--nav-link);
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+        
+        .close-notification {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: var(--nav-link);
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .close-notification:hover {
+            color: var(--nav-link-hover);
+            background-color: var(--nav-link-hover-bg);
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Адаптивность для мобильных устройств */
+        @media (max-width: 992px) {
+            .nav-menu {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background-color: var(--mobile-menu-bg);
+                flex-direction: column;
+                padding: 1rem;
+                gap: 0.5rem;
+                box-shadow: 0 4px 8px var(--header-shadow);
+                transform: scaleY(0);
+                transform-origin: top;
+                transition: transform 0.3s ease;
+                opacity: 0;
+                z-index: 1000;
+            }
+            
+            .nav-menu.active {
+                transform: scaleY(1);
+                opacity: 1;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
+            .nav-link {
+                padding: 0.75rem 1rem;
+                width: 100%;
+            }
+            
+            .logo-text {
+                max-width: 150px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .header-container {
+                padding: 0.5rem 1rem;
+                height: 60px;
+            }
+            
+            .logo-text {
+                font-size: 1rem;
+                max-width: 120px;
+            }
+            
+            .nav-menu {
+                top: 60px;
+            }
+        }
+        
+        /* Стили для кнопки уведомлений */
+        .notification-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--theme-toggle-bg);
+            border: none;
+            color: var(--theme-toggle-color);
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .notification-toggle:hover {
+            background-color: var(--theme-toggle-hover);
+            transform: translateY(-2px);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        /* Стили для выпадающей панели уведомлений */
+        .notification-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 350px;
+            height: 100vh;
+            background-color: var(--header-bg);
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 1100;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .notification-panel.active {
+            right: 0;
+        }
+        
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--notification-border);
+            background-color: var(--notification-header-bg);
+        }
+        
+        .notification-header h3 {
+            margin: 0;
+            font-size: 18px;
+            color: var(--header-text);
+        }
+        
+        .close-panel {
+            background: none;
+            border: none;
+            color: var(--nav-link);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .close-panel:hover {
+            color: var(--nav-link-hover);
+            background-color: var(--nav-link-hover-bg);
+        }
+        
+        .notification-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 15px;
+        }
+        
+        .notification-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1050;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .notification-backdrop.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        .notification {
+            background-color: var(--notification-bg);
+            border: 1px solid var(--notification-border);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            box-shadow: 0 2px 4px var(--notification-shadow);
+            animation: slideIn 0.3s ease;
+            transition: all 0.3s ease;
+        }
+        
+        .notification.unread {
+            border-left: 4px solid var(--nav-link-active);
+        }
+        
+        .notification.read {
+            opacity: 0.7;
+            border-left: 4px solid transparent;
+        }
+        
+        .notification-message {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .notification-actions {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 5px;
+        }
+        
+        .notification-message span {
+            color: var(--notification-text);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .notification-message i {
+            color: var(--nav-link-active);
+        }
+        
+        .notification.read .notification-message i {
+            color: var(--nav-link);
+        }
+        
+        .notification-message small {
+            color: var(--nav-link);
+            font-size: 0.75rem;
+        }
+        
+        .mark-read {
+            background: none;
+            border: none;
+            font-size: 16px;
+            color: var(--nav-link);
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: all 0.2s;
+            margin-left: 10px;
+        }
+        
+        .mark-read:hover {
+            color: #4CAF50;
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+        
+        .delete-notification {
+            background: none;
+            border: none;
+            font-size: 16px;
+            color: var(--nav-link);
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        
+        .delete-notification:hover {
+            color: #e74c3c;
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+        
+        .no-notifications {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 0;
+            color: var(--nav-link);
+            text-align: center;
+        }
+        
+        .no-notifications i {
+            font-size: 36px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <i class="fas fa-calendar-check logo-icon"></i>
+                <h1 class="logo-text">График дежурств</h1>
+            </div>
+            <div class="nav">
+                <button id="mobile-menu-toggle" class="mobile-menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <nav>
+                    <ul id="nav-menu" class="nav-menu">
+                        {% if user.is_authenticated %}
+                            {% if user.is_superuser %}
+                                <li class="nav-item">
+                                    <a href="{% url 'admin_dashboard' %}" class="nav-link {% if request.path == '/admin-dashboard/' %}active{% endif %}">
+                                        <i class="fas fa-tachometer-alt"></i>
+                                        <span>Админ-панель</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{% url 'approve_requests' %}" class="nav-link {% if request.path == '/approve-requests/' %}active{% endif %}">
+                                        <i class="fas fa-user-check"></i>
+                                        <span>Запросы</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{% url 'users_list' %}" class="nav-link {% if request.path == '/users-list/' %}active{% endif %}">
+                                        <i class="fas fa-users"></i>
+                                        <span>Пользователи</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{% url 'admin_analytics' %}" class="nav-link {% if request.path == '/admin-analytics/' %}active{% endif %}">
+                                        <i class="fas fa-chart-line"></i>
+                                        <span>Аналитика</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{% url 'chat_list' %}" class="nav-link {% if request.path == '/chat-list/' %}active{% endif %}">
+                                        <i class="fas fa-comments"></i>
+                                        <span>Чаты</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="nav-item">
+                                    <a href="{% url 'user_dashboard' %}" class="nav-link {% if request.path == '/user-dashboard/' %}active{% endif %}">
+                                        <i class="fas fa-user-circle"></i>
+                                        <span>Мой профиль</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{% url 'user_analytics' %}" class="nav-link {% if request.path == '/user-analytics/' %}active{% endif %}">
+                                        <i class="fas fa-chart-bar"></i>
+                                        <span>Аналитика</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{% url 'workday' %}" class="nav-link {% if request.path == '/workday/' %}active{% endif %}">
+                                        <i class="fas fa-clock"></i>
+                                        <span>Рабочий день</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{% url 'chat_with_admin' %}" class="nav-link {% if '/chat/' in request.path %}active{% endif %}">
+                                        <i class="fas fa-headset"></i>
+                                        <span>Чат</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            <li class="nav-item">
+                                <a href="{% url 'logout' %}" class="nav-link">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Выйти</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a href="{% url 'login' %}" class="nav-link {% if request.path == '/login/' %}active{% endif %}">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                    <span>Войти</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'register' %}" class="nav-link {% if request.path == '/register/' %}active{% endif %}">
+                                    <i class="fas fa-user-plus"></i>
+                                    <span>Регистрация</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                <button id="theme-toggle" class="theme-toggle" aria-label="Переключить тему">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <!-- Добавляем кнопку уведомлений в навигацию -->
+                {% if user.is_authenticated and not user.is_superuser %}
+                <button id="notification-toggle" class="notification-toggle" aria-label="Уведомления">
+                    <i class="fas fa-bell"></i>
+                    {% if unread_notifications_count > 0 %}
+                    <span class="notification-badge">{{ unread_notifications_count }}</span>
+                    {% endif %}
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Заменяем блок уведомлений на выпадающую панель -->
+    {% if user.is_authenticated and not user.is_superuser %}
+    <div id="notification-panel" class="notification-panel">
+        <div class="notification-header">
+            <h3>Уведомления</h3>
+            <button class="close-panel" id="close-notification-panel">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="notification-content">
+            {% if notifications %}
+                {% for notification in notifications %}
+                    <div class="notification {% if notification.is_read %}read{% else %}unread{% endif %}" data-id="{{ notification.id }}">
+                        <div class="notification-message">
+                            <i class="fas fa-bell"></i> 
+                            <span>{{ notification.message }}</span>
+                            <small>{{ notification.created_at|date:"d.m.Y H:i" }}</small>
+                        </div>
+                        <div class="notification-actions">
+                            {% if not notification.is_read %}
+                            <button class="mark-read" aria-label="Отметить как прочитанное" data-id="{{ notification.id }}">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            {% endif %}
+                            <button class="delete-notification" aria-label="Удалить уведомление" data-id="{{ notification.id }}">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-notifications">
+                    <i class="fas fa-bell-slash"></i>
+                    <p>Нет новых уведомлений</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div id="notification-backdrop" class="notification-backdrop"></div>
+    {% endif %}
+
+    <main>
+        <div class="container">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>Данное web-приложение «График дежурств» выполнено в качестве ВКР</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript для переключения темы и закрытия уведомлений -->
+    <script>
+        // Сброс темы к светлой по умолчанию (временное решение)
+        // localStorage.removeItem('theme');
+
+        // Получаем текущую тему из localStorage и устанавливаем атрибут data-theme на body
+        const savedTheme = localStorage.getItem('theme');
+        const themeStyle = document.getElementById('theme-style');
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = themeToggle.querySelector('i');
+
+        // Устанавливаем тему по умолчанию или из localStorage
+        // Светлая тема всегда по умолчанию, темная только если явно указано
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            themeStyle.href = "{% static 'css/dark-theme.css' %}";
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        } else {
+            // Убедимся что нет data-theme и стиль точно светлый
+            document.body.removeAttribute('data-theme');
+            themeStyle.href = "{% static 'css/style.css' %}";
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+
+        // Переключение темы
+        themeToggle.addEventListener('click', () => {
+            if (document.body.getAttribute('data-theme') === 'dark') {
+                document.body.removeAttribute('data-theme');
+                themeStyle.href = "{% static 'css/style.css' %}";
+                localStorage.setItem('theme', 'light');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            } else {
+                document.body.setAttribute('data-theme', 'dark');
+                themeStyle.href = "{% static 'css/dark-theme.css' %}";
+                localStorage.setItem('theme', 'dark');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            }
+        });
+
+        // Мобильное меню
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const navMenu = document.getElementById('nav-menu');
+        
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                const iconElement = mobileMenuToggle.querySelector('i');
+                if (navMenu.classList.contains('active')) {
+                    iconElement.classList.remove('fa-bars');
+                    iconElement.classList.add('fa-times');
+                } else {
+                    iconElement.classList.remove('fa-times');
+                    iconElement.classList.add('fa-bars');
+                }
+            });
+        }
+
+        // Новый код для управления панелью уведомлений
+        const notificationToggle = document.getElementById('notification-toggle');
+        const notificationPanel = document.getElementById('notification-panel');
+        const notificationBackdrop = document.getElementById('notification-backdrop');
+        const closeNotificationPanel = document.getElementById('close-notification-panel');
+        
+        // Открытие/закрытие панели уведомлений
+        if (notificationToggle) {
+            notificationToggle.addEventListener('click', () => {
+                notificationPanel.classList.toggle('active');
+                notificationBackdrop.classList.toggle('active');
+                document.body.style.overflow = notificationPanel.classList.contains('active') ? 'hidden' : '';
+            });
+        }
+        
+        if (closeNotificationPanel) {
+            closeNotificationPanel.addEventListener('click', () => {
+                notificationPanel.classList.remove('active');
+                notificationBackdrop.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        }
+        
+        if (notificationBackdrop) {
+            notificationBackdrop.addEventListener('click', () => {
+                notificationPanel.classList.remove('active');
+                notificationBackdrop.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        }
+        
+        // Обработчик отметки прочитанности
+        document.querySelectorAll('.mark-read').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const notificationElement = button.closest('.notification');
+                const notificationId = button.getAttribute('data-id');
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+                try {
+                    const response = await fetch(`/mark_notification_as_read/${notificationId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `notification_id=${notificationId}`
+                    });
+        
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Меняем стиль уведомления вместо удаления
+                        notificationElement.classList.remove('unread');
+                        notificationElement.classList.add('read');
+                        button.remove(); // Удаляем только кнопку
+                        
+                        // Обновляем счетчик в бейдже
+                        const badge = document.querySelector('.notification-badge');
+                        if (badge) {
+                            const currentCount = parseInt(badge.textContent);
+                            if (currentCount > 1) {
+                                badge.textContent = currentCount - 1;
+                            } else {
+                                badge.remove();
+                            }
+                        }
+                    } else {
+                        throw new Error(data.message || 'Ошибка при пометке уведомления как прочитанное');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Произошла ошибка при обработке уведомления. Попробуйте позже.');
+                }
+            });
+        });
+        
+        // Обработчик полного удаления
+        document.querySelectorAll('.delete-notification').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const notificationElement = button.closest('.notification');
+                const notificationId = button.getAttribute('data-id');
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                
+                // Показываем подтверждение перед удалением
+                if (!confirm('Вы уверены, что хотите удалить это уведомление? Это действие нельзя отменить.')) {
+                    return;
+                }
+        
+                try {
+                    const response = await fetch(`/delete-notification/${notificationId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `notification_id=${notificationId}`
+                    });
+        
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Анимированное удаление элемента
+                        notificationElement.style.opacity = '0';
+                        notificationElement.style.transform = 'translateX(30px)';
+                        
+                        setTimeout(() => {
+                            notificationElement.remove();
+                            
+                            // Если это было непрочитанное уведомление, обновляем счетчик
+                            if (notificationElement.classList.contains('unread')) {
+                                const badge = document.querySelector('.notification-badge');
+                                if (badge) {
+                                    const currentCount = parseInt(badge.textContent);
+                                    if (currentCount > 1) {
+                                        badge.textContent = currentCount - 1;
+                                    } else {
+                                        badge.remove();
+                                    }
+                                }
+                            }
+                            
+                            // Если это было последнее уведомление, показываем сообщение
+                            const remainingNotifications = document.querySelectorAll('.notification').length;
+                            if (remainingNotifications === 0) {
+                                const notificationContent = document.querySelector('.notification-content');
+                                notificationContent.innerHTML = `
+                                    <div class="no-notifications">
+                                        <i class="fas fa-bell-slash"></i>
+                                        <p>Нет новых уведомлений</p>
+                                    </div>
+                                `;
+                            }
+                        }, 300);
+                    } else {
+                        throw new Error(data.message || 'Ошибка при удалении уведомления');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Произошла ошибка при удалении уведомления. Попробуйте позже.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Система управления дежурствами{% endblock %}</title>
+    <!-- Загрузка статических файлов -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- Подключение шрифтов -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Подключение иконок Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Подключение CSS -->
+    <link rel="stylesheet" href="{% static 'css/dark-theme.css' %}" id="theme-style">
+    <link rel="icon" href="{% static 'favicon.png' %}" type="image/x-icon">
+    <style>
+        /* Новые стили для современного header и меню навигации */
+        :root {
+            --header-bg: #ffffff;
+            --header-shadow: rgba(0, 0, 0, 0.05);
+            --header-text: #2c3e50;
+            --nav-link: #4a5568;
+            --nav-link-hover: #3498db;
+            --nav-link-hover-bg: rgba(52, 152, 219, 0.1);
+            --nav-link-active: #3498db;
+            --nav-link-active-bg: rgba(52, 152, 219, 0.15);
+            --logo-color: #3498db;
+            --theme-toggle-bg: #f8f9fa;
+            --theme-toggle-color: #4a5568;
+            --theme-toggle-hover: #e2e8f0;
+            --notification-bg: #f8f9fa;
+            --notification-border: #e2e8f0;
+            --notification-text: #4a5568;
+            --notification-shadow: rgba(0, 0, 0, 0.1);
+            --mobile-menu-bg: #ffffff;
+        }
+        
+        /* Стили для темного режима */
+        [data-theme="dark"] {
+            --header-bg: #1a202c;
+            --header-shadow: rgba(0, 0, 0, 0.3);
+            --header-text: #e2e8f0;
+            --nav-link: #a0aec0;
+            --nav-link-hover: #63b3ed;
+            --nav-link-hover-bg: rgba(99, 179, 237, 0.15);
+            --nav-link-active: #63b3ed;
+            --nav-link-active-bg: rgba(99, 179, 237, 0.25);
+            --logo-color: #63b3ed;
+            --theme-toggle-bg: #2d3748;
+            --theme-toggle-color: #a0aec0;
+            --theme-toggle-hover: #4a5568;
+            --notification-bg: #2d3748;
+            --notification-border: #4a5568;
+            --notification-text: #e2e8f0;
+            --notification-shadow: rgba(0, 0, 0, 0.5);
+            --mobile-menu-bg: #1a202c;
+        }
+        
+        body {
+            font-family: 'Rubik', 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease;
+        }
+        
+        .header {
+            background-color: var(--header-bg);
+            box-shadow: 0 4px 12px var(--header-shadow);
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .header-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            height: 70px;
+            position: relative;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-icon {
+            color: var(--logo-color);
+            font-size: 24px;
+            margin-right: 12px;
+        }
+        
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--header-text);
+            transition: color 0.3s ease;
+        }
+        
+        .nav {
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+            gap: 0.5rem;
+        }
+        
+        .nav-item {
+            margin: 0;
+            position: relative;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--nav-link);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.625rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--nav-link-hover);
+            background-color: var(--nav-link-hover-bg);
+            transform: translateY(-2px);
+        }
+        
+        .nav-link.active {
+            color: var(--nav-link-active);
+            background-color: var(--nav-link-active-bg);
+        }
+        
+        .nav-link i {
+            font-size: 18px;
+        }
+        
+        /* Кнопка переключения темы */
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--theme-toggle-bg);
+            border: none;
+            color: var(--theme-toggle-color);
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .theme-toggle:hover {
+            background-color: var(--theme-toggle-hover);
+            transform: translateY(-2px);
+        }
+        
+        /* Кнопка мобильного меню */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--nav-link);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0.5rem;
+            margin-left: 1rem;
+        }
+        
+        /* Адаптивность для мобильных устройств */
+        @media (max-width: 992px) {
+            .nav-menu {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background-color: var(--mobile-menu-bg);
+                flex-direction: column;
+                padding: 1rem;
+                gap: 0.5rem;
+                box-shadow: 0 4px 8px var(--header-shadow);
+                transform: scaleY(0);
+                transform-origin: top;
+                transition: transform 0.3s ease;
+                opacity: 0;
+                z-index: 1000;
+            }
+            
+            .nav-menu.active {
+                transform: scaleY(1);
+                opacity: 1;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
+            .nav-link {
+                padding: 0.75rem 1rem;
+                width: 100%;
+            }
+            
+            .logo-text {
+                max-width: 150px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .header-container {
+                padding: 0.5rem 1rem;
+                height: 60px;
+            }
+            
+            .logo-text {
+                font-size: 1rem;
+                max-width: 120px;
+            }
+            
+            .nav-menu {
+                top: 60px;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <i class="fas fa-calendar-check logo-icon"></i>
+                <h1 class="logo-text">График дежурств</h1>
+            </div>
+            <div class="nav">
+                <button id="mobile-menu-toggle" class="mobile-menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <nav>
+                    <ul id="nav-menu" class="nav-menu">
+                        {% if request.path != '/login/' and request.path != '/register/' %}
+                            <li class="nav-item">
+                                <a href="{% url 'login' %}" class="nav-link {% if request.path == '/login/' %}active{% endif %}">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                    <span>Войти</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'register' %}" class="nav-link {% if request.path == '/register/' %}active{% endif %}">
+                                    <i class="fas fa-user-plus"></i>
+                                    <span>Регистрация</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                <button id="theme-toggle" class="theme-toggle" aria-label="Переключить тему">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>Данное web-приложение «График дежурств» выполнено в качестве ВКР</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript для переключения темы -->
+    <script>
+        // Получаем текущую тему из localStorage и устанавливаем атрибут data-theme на body
+        const savedTheme = localStorage.getItem('theme');
+        const themeStyle = document.getElementById('theme-style');
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = themeToggle.querySelector('i');
+
+        // Устанавливаем тему по умолчанию или из localStorage
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            themeStyle.href = "{% static 'css/dark-theme.css' %}";
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        } else {
+            document.body.removeAttribute('data-theme');
+            themeStyle.href = "{% static 'css/style.css' %}";
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+
+        // Переключение темы
+        themeToggle.addEventListener('click', () => {
+            if (document.body.getAttribute('data-theme') === 'dark') {
+                document.body.removeAttribute('data-theme');
+                themeStyle.href = "{% static 'css/style.css' %}";
+                localStorage.setItem('theme', 'light');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            } else {
+                document.body.setAttribute('data-theme', 'dark');
+                themeStyle.href = "{% static 'css/dark-theme.css' %}";
+                localStorage.setItem('theme', 'dark');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            }
+        });
+
+        // Мобильное меню
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const navMenu = document.getElementById('nav-menu');
+        
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                const iconElement = mobileMenuToggle.querySelector('i');
+                if (navMenu.classList.contains('active')) {
+                    iconElement.classList.remove('fa-bars');
+                    iconElement.classList.add('fa-times');
+                } else {
+                    iconElement.classList.remove('fa-times');
+                    iconElement.classList.add('fa-bars');
+                }
+            });
+        }
+
+        // Обработка закрытия уведомлений через AJAX
+        document.querySelectorAll('.close-notification').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const notificationElement = button.closest('.notification');
+                const notificationId = notificationElement.getAttribute('data-id');
+
+                fetch(`/mark_notification_as_read/${notificationId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'notification_id=' + notificationId
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        notificationElement.style.opacity = '0';
+                        setTimeout(() => {
+                            notificationElement.style.display = 'none';
+                        }, 300);
+                    } else {
+                        alert('Ошибка при закрытии уведомления.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Произошла ошибка. Попробуйте позже.');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

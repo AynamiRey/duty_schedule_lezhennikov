@@ -1,0 +1,1385 @@
+/* Общие стили */
+body, .wrapper, .container, .workday-container, .analytics-container, .user-profile, .duties-section, .chat-outer, .chat-card {
+    background: #181f29 !important;
+}
+body {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #121212; /* Темный фон */
+    color: #e0e0e0; /* Светлый текст */
+    line-height: 1.6;
+    display: flex; /* Flexbox для body */
+    flex-direction: column; /* Элементы по вертикали */
+    min-height: 100vh; /* Минимальная высота экрана */
+}
+
+/* Обертка для основного контента и подвала */
+.wrapper {
+    flex: 1; /* Занимает всё доступное пространство */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Верхняя панель */
+header {
+    background-color: #1e1e1e; /* Темно-серый фон */
+    color: white;
+    padding: 15px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Более заметная тень */
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between; /* Разделение логотипа и меню */
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.navbar-brand h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffffff; /* Белый текст */
+}
+
+/* Стили для меню навигации */
+.nav-menu {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 20px; /* Расстояние между кнопками */
+}
+
+.nav-menu li {
+    display: inline-block;
+}
+
+.nav-menu a {
+    display: flex; /* Используем Flexbox для выравнивания */
+    align-items: center; /* Выравниваем текст по вертикали */
+    justify-content: center; /* Выравниваем текст по горизонтали */
+    text-align: center; /* Дополнительное выравнивание текста */
+    color: #ffffff; /* Белый текст */
+    text-decoration: none; /* Убираем подчеркивание */
+    padding: 10px 15px; /* Внутренние отступы */
+    border-radius: 5px; /* Закругленные углы */
+    transition: background-color 0.3s ease; /* Плавный переход цвета */
+    background-color: #333333; /* Темно-серый фон */
+    font-size: 16px; /* Фиксированный размер шрифта */
+    line-height: 1.6; /* Выравнивание текста по вертикали */
+    white-space: nowrap; /* Запрещаем перенос текста */
+}
+
+.nav-menu a:hover {
+    background-color: #4d4d4d; /* Светлее при наведении */
+}
+
+/* Основной контент */
+main {
+    padding: 20px 0;
+    flex: 1; /* Занимает всё доступное пространство */
+}
+
+.container, .workday-container {
+    background: none !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 0 20px !important;
+}
+
+/* Формы */
+form {
+    margin-top: 20px;
+}
+
+label {
+    font-weight: 500;
+    display: block;
+    margin-bottom: 5px;
+    color: #ffffff; /* Белый текст */
+}
+
+input,
+select,
+textarea {
+    font-family: 'Montserrat', sans-serif;
+    padding: 10px;
+    border: 1px solid #444444; /* Темная граница */
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #2b2b2b; /* Темный фон */
+    color: #ffffff; /* Белый текст */
+}
+
+button {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #444444; /* Зеленый фон */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #858585; /* Темнее при наведении */
+}
+
+/* Таблицы */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background-color: #2b2b2b; /* Темный фон */
+}
+
+th,
+td {
+    border: 1px solid #444444; /* Темная граница */
+    padding: 10px;
+    text-align: left;
+    color: #ffffff; /* Белый текст */
+}
+
+th {
+    background-color: #333333; /* Темно-серый фон */
+    color: #ffffff; /* Белый текст */
+    font-weight: 600;
+}
+
+tr:nth-child(even) {
+    background-color: #222222; /* Чередование строк */
+}
+
+/* Уведомления */
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.alert-success {
+    background-color: #444444; /* Темно-зеленый фон */
+    color: #ffffff; /* Белый текст */
+    border: 1px solid #155724;
+}
+
+.alert-error {
+    background-color: #b71c1c; /* Темно-красный фон */
+    color: #ffffff; /* Белый текст */
+    border: 1px solid #7f0000;
+}
+
+/* Стили для блока "Информация о пользователе" */
+.user-info {
+    margin-top: 20px;
+}
+
+.user-info h3 {
+    color: #ffffff; /* Белый текст */
+}
+
+.user-info table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.user-info th,
+.user-info td {
+    border: 1px solid #444444; /* Темная граница */
+    padding: 10px;
+    text-align: left;
+    color: #ffffff; /* Белый текст */
+}
+
+.user-info th {
+    background-color: #333333; /* Темно-серый фон */
+    font-weight: bold;
+}
+
+/* Список дежурств */
+.duties-list table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #2b2b2b; /* Темный фон */
+}
+
+.duties-list th,
+.duties-list td {
+    border: 1px solid #444444; /* Темная граница */
+    padding: 10px;
+    text-align: left;
+    color: #ffffff; /* Белый текст */
+}
+
+/* Экспорт данных */
+.export-options .btn {
+    display: inline-block;
+    margin-right: 10px;
+    padding: 10px 20px;
+    background-color: #444444; /* Зеленый фон */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.export-options .btn:hover {
+    background-color: #45a049; /* Темнее при наведении */
+}
+
+/* Фильтр по дате */
+.date-filter {
+    margin-top: 20px;
+}
+
+.date-filter input[type='date'] {
+    padding: 10px;
+    border: 1px solid #444444; /* Темная граница */
+    border-radius: 5px;
+    font-family: 'Montserrat', sans-serif;
+    background-color: #2b2b2b; /* Темный фон */
+    color: #ffffff; /* Белый текст */
+}
+
+.date-filter button {
+    margin-left: 10px;
+    padding: 10px 20px;
+    background-color: #444444; /* Зеленый фон */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.date-filter button:hover {
+    background-color: #45a049; /* Темнее при наведении */
+}
+
+/* Футер */
+footer {
+    background: #20293a !important;
+    color: #b0b0b0 !important;
+    text-align: center;
+    padding: 18px 0 12px 0;
+    width: 100%;
+    border-top: 1px solid #232a3a;
+    font-size: 1rem;
+    letter-spacing: 0.01em;
+    transition: background 0.3s, color 0.3s;
+}
+
+/* Модальное окно */
+.modal {
+    display: none; /* Скрыто по умолчанию */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Темный фон с прозрачностью */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #2b2b2b; /* Темный фон */
+    padding: 20px;
+    border: 1px solid #444444; /* Темная граница */
+    width: 60%;
+    max-width: 400px; /* Максимальная ширина */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    color: #ffffff; /* Белый текст */
+    -webkit-animation: animatezoom 0.6s;
+    animation: animatezoom 0.6s;
+}
+
+/* Анимация появления */
+@-webkit-keyframes animatezoom {
+    from { -webkit-transform: scale(0); }
+    to { -webkit-transform: scale(1); }
+}
+
+@keyframes animatezoom {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+}
+
+/* Кнопка закрытия */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #ffffff; /* Белый при наведении */
+}
+
+/* Стили для формы в модальном окне */
+.grid-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.grid-form label {
+    color: #ffffff; /* Белый текст */
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.grid-form input {
+    font-family: 'Montserrat', sans-serif;
+    padding: 10px;
+    border: 1px solid #444444; /* Темная граница */
+    border-radius: 5px;
+    background-color: #333333; /* Темный фон ввода */
+    color: #ffffff; /* Белый текст */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.grid-form input:focus {
+    border-color: #858585; /* Подсветка при фокусе */
+    outline: none;
+}
+
+.grid-form button[type="submit"] {
+    grid-column: 1 / 3; /* Кнопка на всю ширину */
+    margin-top: 10px;
+    background-color: #444444; /* Темный фон кнопки */
+    color: #ffffff; /* Белый текст */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.grid-form button[type="submit"]:hover {
+    background-color: #858585; /* Светлее при наведении */
+}
+
+/* Стили для блока уведомлений */
+.notifications {
+    margin: 20px 0;
+    padding: 10px;
+    background-color: #2b2b2b; /* Темный фон */
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.notification {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    background-color: #333333; /* Темно-серый фон */
+    border: 1px solid #444444; /* Темная граница */
+    color: #ffffff; /* Белый текст */
+}
+
+.notification.unread {
+    background-color: #444444; /* Темно-зеленый фон */
+    font-weight: bold;
+    border-color: #155724;
+}
+
+.notification small {
+    display: block;
+    color: #aaaaaa; /* Серый текст */
+    font-size: 0.8em;
+    margin-top: 5px;
+}
+
+/* Стили для чатов */
+.chat-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.chat-list li {
+    padding: 15px;
+    border-bottom: 1px solid #444;
+    background-color: #2b2b2b;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.chat-list li:hover {
+    background-color: #333333;
+}
+
+.chat-list a {
+    text-decoration: none;
+    color: #e0e0e0;
+    font-weight: 500;
+    display: block;
+}
+
+.chat-list p {
+    margin: 5px 0 0;
+    color: #aaaaaa;
+    font-size: 14px;
+}
+
+.chat-list small {
+    color: #888888;
+    font-size: 12px;
+}
+
+.unread-count {
+    background-color: #dc3545;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+.chat-messages {
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 20px 0;
+    padding: 10px;
+    background-color: #2b2b2b;
+    border: 1px solid #444444;
+    border-radius: 5px;
+}
+
+.message {
+    padding: 10px 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    max-width: 70%;
+}
+
+.message.sent {
+    background-color: #0288d1;
+    margin-left: auto;
+    text-align: right;
+    color: #ffffff;
+}
+
+.message.received {
+    background-color: #424242;
+    margin-right: auto;
+    color: #e0e0e0;
+}
+
+.message p {
+    margin: 0;
+    word-wrap: break-word;
+}
+
+.message small {
+    display: block;
+    margin-top: 5px;
+    color: #aaaaaa;
+    font-size: 12px;
+}
+
+.chat-form {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.chat-form textarea {
+    flex: 1;
+    height: 80px;
+    resize: none;
+    padding: 10px;
+    border: 1px solid #444444;
+    border-radius: 5px;
+    background-color: #333333;
+    color: #ffffff;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.chat-form button {
+    background-color: #0288d1;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.chat-form button:hover {
+    background-color: #0277bd;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Карточки */
+.card {
+    background-color: #2b2b2b;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Общая статистика */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-label {
+    display: block;
+    font-weight: 500;
+    color: #aaaaaa;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+/* Проверка дежурства */
+.date-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.date-filter .result {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.duty-yes {
+    background-color: #444444;
+    color: #ffffff;
+}
+
+.duty-no {
+    background-color: #b71c1c;
+    color: #ffffff;
+}
+
+/* Календарь */
+.calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+.calendar-table th {
+    background-color: #333333;
+    color: #ffffff;
+    padding: 10px;
+    text-align: center;
+}
+
+.calendar-table td {
+    border: 1px solid #444444;
+    padding: 15px;
+    text-align: center;
+    position: relative;
+    color: #ffffff;
+}
+
+.calendar-table .empty {
+    background-color: #222222;
+}
+
+.calendar-table .duty-day {
+    background-color: #444444;
+}
+
+.duty-mark {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+/* Кнопки экспорта */
+.export-buttons {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+/* Таймер */
+.timer {
+    text-align: center;
+}
+
+#timer-display {
+    font-size: 2em;
+    font-weight: bold;
+    margin: 20px 0;
+    color: #ffffff;
+}
+
+.timer-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Задачи */
+.task-form {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.task-form input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #444444;
+    border-radius: 5px;
+    font-family: 'Montserrat', sans-serif;
+    background-color: #333333;
+    color: #ffffff;
+}
+
+.task-list {
+    list-style: none;
+    padding: 0;
+}
+
+.task-list li {
+    padding: 10px;
+    border-bottom: 1px solid #444444;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #ffffff;
+}
+
+.task-list .completed {
+    background-color: #444444;
+    color: #ffffff;
+}
+
+.task-text {
+    flex-grow: 1;
+    text-decoration: none; /* Убираем начальное перечеркивание, если есть */
+}
+
+.task-list .completed .task-text {
+    text-decoration: line-through; /* Перечеркиваем текст при выполнении */
+}
+
+.task-toggle {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: #ffffff;
+}
+
+/* Стили для страницы user-dashboard в темной теме */
+
+/* Заголовок страницы */
+.page-title {
+    font-size: 2em;
+    color: #ffffff;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+/* Карточки для профильной информации и дежурств */
+.user-profile, .duties-section, .card {
+    background: #20293a !important;
+    border: 1px solid #232a3a !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.10) !important;
+    border-radius: 12px !important;
+    padding: 16px !important;
+    margin-bottom: 20px;
+}
+
+.card-title {
+    font-size: 1.5em;
+    color: #ffffff;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #444444;
+    padding-bottom: 10px;
+}
+
+/* Детали пользователя */
+.user-details {
+    margin-bottom: 20px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #444444;
+}
+
+.detail-label {
+    color: #5db2ff;
+    font-weight: 700;
+    width: 30%;
+}
+
+.detail-value {
+    color: #fff;
+    font-weight: 600;
+    width: 70%;
+    word-wrap: break-word;
+}
+
+/* Список дежурств */
+.duty-list {
+    list-style: none;
+    padding: 0;
+}
+
+.duty-item {
+    padding: 10px;
+    border-bottom: 1px solid #444444;
+    background-color: #333333;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.duty-item:hover {
+    background-color: #444444;
+}
+
+.duty-date {
+    color: #e0e0e0;
+    font-weight: 500;
+}
+
+/* Сообщение при отсутствии данных */
+.no-data {
+    color: #aaaaaa;
+    text-align: center;
+    padding: 15px;
+    background-color: #222222;
+    border-radius: 5px;
+}
+
+/* Кнопка редактирования */
+.edit-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #f0ad4e;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.edit-btn:hover {
+    background-color: #ec971f;
+}
+
+/* Стили для кнопки закрытия уведомлений в темной теме */
+.close-notification {
+    background-color: #dc3545; /* Красный фон для кнопки закрытия */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.close-notification:hover {
+    background-color: #c82333; /* Темнее при наведении */
+}
+
+/* Стили для страницы регистрации - темная тема */
+.register-container {
+    background-color: #1a1a1a;
+}
+
+.register-card {
+    background-color: #2d2d2d;
+    border-color: #404040;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.register-card h2 {
+    color: #ffffff;
+}
+
+.form-group label {
+    color: #e0e0e0;
+}
+
+.form-input {
+    background-color: #3d3d3d;
+    border-color: #505050;
+    color: #ffffff;
+}
+
+.form-input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.25);
+}
+
+.form-input::placeholder {
+    color: #888888;
+}
+
+.login-link {
+    color: #b0b0b0;
+}
+
+.login-link a {
+    color: #3498db;
+}
+
+.login-link a:hover {
+    color: #2980b9;
+}
+
+/* Стили для ошибок в темной теме */
+.login-error {
+    background-color: #442326;
+    color: #ff9999;
+    border-color: #662629;
+}
+
+.field-error {
+    color: #ff9999;
+}
+
+/* Стили для уведомлений в темной теме */
+.auth-message.success {
+    background-color: #1e4620;
+    color: #98c699;
+    border-color: #2a602c;
+}
+
+/* Стили для кнопки в темной теме */
+.register-btn {
+    background-color: #3498db;
+    color: #ffffff;
+}
+
+.register-btn:hover {
+    background-color: #2980b9;
+}
+
+/* Стили для уведомлений на странице входа - темная тема */
+.auth-message {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.auth-message.error {
+    background-color: #2b090b;
+    color: #ffffff;
+    border: 1px solid #842029;
+}
+
+/* Стили для ошибок входа - темная тема */
+.login-error {
+    background-color: #2b090b;
+    color: #ffffff;
+    border: 1px solid #842029;
+}
+
+/* --- ДОПОЛНИТЕЛЬНЫЕ СТИЛИ ДЛЯ ПОЛНОЙ ТЁМНОЙ ТЕМЫ ПРОФИЛЯ --- */
+
+.section-title {
+    color: #2196f3;
+    font-weight: 800;
+    border-bottom: 1px solid #444444;
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+}
+
+.profile-content, .profile-section {
+    background: none;
+    color: #e0e0e0;
+}
+
+.duty-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.duty-weekday {
+    color: #b0b0b0;
+    font-size: 0.95em;
+}
+
+.pagination {
+    background: #232323;
+    border-radius: 8px;
+    padding: 10px 18px;
+    margin-top: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+.pagination-info {
+    color: #e0e0e0;
+}
+.pagination-controls .page-link {
+    color: #e0e0e0;
+    background: #333333;
+    border-radius: 4px;
+    margin: 0 2px;
+    padding: 4px 10px;
+    transition: background 0.2s;
+}
+.pagination-controls .page-link.active {
+    background: #3498db;
+    color: #fff;
+}
+.pagination-controls .page-link.disabled {
+    background: #222;
+    color: #666;
+}
+.pagination-controls .page-link:hover:not(.active):not(.disabled) {
+    background: #444;
+}
+
+.loading-spinner {
+    background: rgba(30,30,30,0.95);
+    color: #e0e0e0;
+    border-radius: 8px;
+    padding: 18px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+
+/* Модальное окно для редактирования профиля */
+#edit-profile-modal .modal-content {
+    background: #232323;
+    color: #e0e0e0;
+    border: 1px solid #444444;
+}
+#edit-profile-modal input,
+#edit-profile-modal select {
+    background: #333333;
+    color: #e0e0e0;
+    border: 1px solid #444444;
+}
+#edit-profile-modal input:focus,
+#edit-profile-modal select:focus {
+    border-color: #3498db;
+    outline: none;
+}
+#edit-profile-modal label {
+    color: #b0b0b0;
+}
+#edit-profile-modal .btn {
+    background: #3498db;
+    color: #fff;
+    border-radius: 5px;
+    border: none;
+    transition: background 0.2s;
+}
+#edit-profile-modal .btn:hover {
+    background: #217dbb;
+}
+
+.user-profile .profile-header {
+    background: #20293a !important;
+    color: #e0e0e0;
+    border-bottom: 1px solid #232a3a;
+}
+.user-profile .profile-avatar {
+    background: #3498db;
+    color: #fff;
+}
+.user-profile .card-title {
+    color: #e0e0e0;
+}
+.user-profile .edit-btn {
+    background: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    transition: background 0.2s;
+}
+.user-profile .edit-btn:hover {
+    background: #217dbb;
+}
+
+.duties-section .card-title {
+    background: #232b3b !important;
+    color: #f5f5f5 !important;
+    border-bottom: 1px solid #444444;
+    padding: 18px 24px 14px 24px;
+    margin: 0 -20px 20px -20px;
+    border-radius: 10px 10px 0 0;
+    font-weight: 700;
+    font-size: 1.25em;
+}
+.duty-item {
+    background: #232a36 !important;
+    color: #e0e0e0;
+    border-radius: 8px;
+    border: 1px solid #232a3a;
+    margin-bottom: 12px;
+    transition: background 0.3s;
+}
+.duty-item:hover {
+    background: #273047 !important;
+    color: #fff;
+}
+.duties-section .duty-info {
+    color: #e8e8e8;
+}
+.duties-section .duty-date {
+    color: #fff;
+    font-weight: 600;
+}
+.duties-section .duty-weekday {
+    color: #b8cfff;
+    font-weight: 500;
+}
+.duties-section .duty-item:hover .duty-date,
+.duties-section .duty-item:hover .duty-weekday {
+    color: #fff;
+}
+
+.user-profile .detail-value {
+    color: #fff !important;
+    font-weight: 700 !important;
+}
+.user-profile .detail-label {
+    color: #40a9ff !important;
+    font-weight: 700 !important;
+}
+.user-profile .section-title {
+    color: #2196f3 !important;
+    font-weight: 800 !important;
+}
+.user-profile .detail-row {
+    border-bottom: 1px solid #444 !important;
+}
+
+/* --- ТЁМНАЯ ТЕМА: АНАЛИТИКА --- */
+.analytics-container {
+    background: none;
+    color: #e0e0e0;
+}
+.stats-cards {
+    gap: 20px;
+}
+.stats-card {
+    background: #232323 !important;
+    color: #fff !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.18);
+    border-radius: 12px;
+    border-left: 4px solid #3498db;
+}
+.stats-card.monthly { border-left: 4px solid #4CAF50; }
+.stats-card.quarterly { border-left: 4px solid #FF9800; }
+.stats-card.yearly { border-left: 4px solid #2196F3; }
+.stats-icon {
+    background: #1a2633 !important;
+    color: #4CAF50 !important;
+}
+.stats-card.monthly .stats-icon { color: #4CAF50 !important; }
+.stats-card.quarterly .stats-icon { color: #FF9800 !important; }
+.stats-card.yearly .stats-icon { color: #2196F3 !important; }
+.stats-content h3 {
+    color: #b0b0b0 !important;
+}
+.stats-value {
+    color: #fff !important;
+}
+.stats-hours {
+    color: #7f8c8d !important;
+}
+.analytics-card {
+    background: #232323 !important;
+    color: #e0e0e0 !important;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.18);
+}
+.card-header {
+    background: none !important;
+    color: #fff !important;
+    border-bottom: 1px solid #444444;
+    padding-bottom: 8px;
+}
+.card-header h2 {
+    color: #fff !important;
+}
+.card-body {
+    background: none !important;
+    color: #e0e0e0 !important;
+}
+.export-buttons .btn {
+    background: #333 !important;
+    color: #fff !important;
+    border: none;
+}
+.export-buttons .btn:hover {
+    background: #3498db !important;
+    color: #fff !important;
+}
+.calendar-table {
+    background: #232323 !important;
+    color: #fff !important;
+}
+.calendar-table th {
+    background: #222 !important;
+    color: #fff !important;
+}
+.calendar-table td {
+    background: #232323 !important;
+    color: #fff !important;
+    border: 1px solid #444444 !important;
+}
+.calendar-table .weekend {
+    background: #1a2633 !important;
+    color: #b0b0b0 !important;
+}
+.calendar-table .duty-day {
+    background: #3498db !important;
+    color: #fff !important;
+}
+.calendar-day .day-number {
+    color: #fff !important;
+}
+.duty-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #4CAF50;
+    border-radius: 50%;
+    margin-left: 4px;
+}
+.result-box.duty-yes {
+    background: #1e4620 !important;
+    color: #98c699 !important;
+}
+.result-box.duty-no {
+    background: #442326 !important;
+    color: #ff9999 !important;
+}
+.date-form label {
+    color: #b0b0b0 !important;
+}
+.form-control[type="date"] {
+    background: #232323 !important;
+    color: #fff !important;
+    border: 1px solid #444444 !important;
+}
+.primary-btn {
+    background: #3498db !important;
+    color: #fff !important;
+    border: none;
+}
+.primary-btn:hover {
+    background: #217dbb !important;
+}
+
+.analytics-container .page-title {
+    color: #fff !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.01em;
+}
+.analytics-container .page-title i {
+    color: #2196f3 !important;
+}
+
+/* --- ТЁМНАЯ ТЕМА: РАБОЧИЙ ДЕНЬ --- */
+.workday-container, .workday-card {
+    background: #181f29 !important;
+    color: #e0e0e0;
+}
+.workday-card {
+    background: #232323 !important;
+    color: #fff !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.18);
+    border-radius: 12px;
+}
+.card-header {
+    background: #181a1b !important;
+    color: #fff !important;
+    border-bottom: 1px solid #444444;
+}
+.card-header h2 {
+    color: #fff !important;
+}
+.card-header h2 i {
+    color: #2196f3 !important;
+}
+.card-body {
+    background: none !important;
+    color: #e0e0e0 !important;
+}
+.page-title {
+    color: #fff !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.01em;
+}
+.page-title i {
+    color: #2196f3 !important;
+}
+.timer-display {
+    color: #4fc3f7 !important;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+.timer-display:hover {
+    color: #2196f3 !important;
+}
+.primary-btn, .export-btn {
+    background: #3498db !important;
+    color: #fff !important;
+    border: none;
+}
+.primary-btn:hover, .export-btn:hover {
+    background: #217dbb !important;
+}
+.secondary-btn {
+    background: #444 !important;
+    color: #fff !important;
+    border: none;
+}
+.secondary-btn:hover {
+    background: #666 !important;
+}
+.input-group {
+    display: flex !important;
+    width: 100% !important;
+    gap: 10px;
+}
+.input-wrapper {
+    flex: 1 1 0 !important;
+    width: 100% !important;
+}
+.input-wrapper input, .task-form input.form-control {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    padding: 12px 16px !important;
+    background: #232323 !important;
+    color: #fff !important;
+    border: 1.5px solid #444444 !important;
+    border-radius: 8px !important;
+    font-size: 1rem !important;
+    box-sizing: border-box;
+}
+.form-control:focus, .input-group input[type="date"]:focus, .input-wrapper input:focus {
+    border-color: #3498db !important;
+}
+.task-list {
+    background: none !important;
+}
+.task-item {
+    background: #232323 !important;
+    color: #fff !important;
+    border-bottom: 1px solid #444444 !important;
+}
+.task-item.completed {
+    background: #263238 !important;
+    color: #b0b0b0 !important;
+}
+.task-toggle {
+    color: #2196f3 !important;
+}
+.task-toggle:hover {
+    color: #4fc3f7 !important;
+}
+.empty-tasks {
+    color: #888 !important;
+}
+.export-section h3, .attendance-card h3 {
+    color: #2196f3 !important;
+}
+.message-container {
+    color: #fff !important;
+}
+
+/* --- ТЁМНАЯ ТЕМА: СТРАНИЦА ВХОДА --- */
+.auth-container {
+    background: #181f29 !important;
+}
+.auth-card {
+    background: #20293a !important;
+    color: #fff !important;
+    border: 1px solid #232a3a !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18) !important;
+}
+.auth-header {
+    color: #fff !important;
+}
+.auth-title {
+    color: #fff !important;
+}
+.auth-subtitle {
+    color: #b0b0b0 !important;
+}
+.form-group label {
+    color: #b0b0b0 !important;
+}
+.form-control {
+    background: #232a36 !important;
+    color: #fff !important;
+    border: 1.5px solid #444444 !important;
+}
+.form-control:focus {
+    border-color: #3498db !important;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.18) !important;
+}
+.auth-btn {
+    background: #3498db !important;
+    color: #fff !important;
+}
+.auth-btn:hover {
+    background: #217dbb !important;
+}
+.auth-footer {
+    color: #b0b0b0 !important;
+}
+.auth-footer a {
+    color: #4fc3f7 !important;
+}
+.auth-footer a:hover {
+    color: #2196f3 !important;
+}
+.auth-message.success {
+    background-color: #1e4620 !important;
+    color: #98c699 !important;
+    border: 1px solid #2a602c !important;
+}
+.auth-message.error {
+    background-color: #442326 !important;
+    color: #ff9999 !important;
+    border: 1px solid #662629 !important;
+}
+.login-error {
+    background-color: #442326 !important;
+    border-left: 4px solid #e74c3c !important;
+    color: #ff9999 !important;
+}

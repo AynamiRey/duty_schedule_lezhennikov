@@ -1,0 +1,324 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Чат с {{ receiver.last_name }} {{ receiver.first_name }}{% endblock %}
+
+{% block content %}
+<div class="chat-outer">
+    <div class="chat-card">
+        <div class="chat-header-new">
+            <div class="chat-avatar">
+                <img src="https://ui-avatars.com/api/?name={{ receiver.first_name }}+{{ receiver.last_name }}&background=3498db&color=fff&size=64" alt="Аватар">
+            </div>
+            <div class="chat-header-info">
+                <div class="chat-header-title">Чат с {{ receiver.last_name }} {{ receiver.first_name }}</div>
+            </div>
+        </div>
+        <div class="chat-messages-new" id="chat-messages">
+            {% for message in messages %}
+                <div class="message-bubble {% if message.sender == user %}sent{% else %}received{% endif %}">
+                    <div class="bubble-content">{{ message.message }}</div>
+                    <div class="bubble-meta">
+                        <span class="bubble-time">{{ message.timestamp|date:"d.m.Y H:i" }}</span>
+                        {% if message.sender == user %}
+                            <span class="bubble-status"><i class="fas fa-check"></i></span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <div class="no-messages">
+                    <i class="fas fa-comment-slash"></i>
+                    <p>Сообщений пока нет. Напишите первое сообщение!</p>
+                </div>
+            {% endfor %}
+        </div>
+        <form method="POST" class="chat-form-new">
+            {% csrf_token %}
+            <div class="message-input-row">
+                <textarea name="message" placeholder="Введите сообщение..." required class="message-input-new"></textarea>
+                <button type="submit" class="send-btn-new" title="Отправить сообщение">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+:root {
+    --chat-bg: #f4f7fb;
+    --chat-card-bg: #fff;
+    --chat-card-shadow: 0 4px 24px rgba(52, 152, 219, 0.08);
+    --bubble-sent: #3498db;
+    --bubble-received: #e5e6e8;
+    --bubble-text-sent: #fff;
+    --bubble-text-received: #222;
+    --bubble-shadow: 0 2px 8px rgba(52,152,219,0.07);
+    --header-bg: #f8fafc;
+    --header-title: #222;
+    --input-bg: #f8fafc;
+    --input-border: #dbeafe;
+    --input-focus: #3498db;
+    --send-btn-bg: #3498db;
+    --send-btn-hover: #217dbb;
+    --scrollbar-thumb: #d1d8e0;
+    --scrollbar-track: #f1f1f1;
+}
+[data-theme="dark"] {
+    --chat-bg: #181c23;
+    --chat-card-bg: #232a36;
+    --chat-card-shadow: 0 4px 24px rgba(52, 152, 219, 0.10);
+    --bubble-sent: #3498db;
+    --bubble-received: #232a36;
+    --bubble-text-sent: #fff;
+    --bubble-text-received: #e2e8f0;
+    --bubble-shadow: 0 2px 8px rgba(52,152,219,0.13);
+    --header-bg: #232a36;
+    --header-title: #e2e8f0;
+    --input-bg: #232a36;
+    --input-border: #374151;
+    --input-focus: #3498db;
+    --send-btn-bg: #3498db;
+    --send-btn-hover: #217dbb;
+    --scrollbar-thumb: #374151;
+    --scrollbar-track: #232a36;
+}
+
+body {
+    background: var(--chat-bg);
+}
+
+.chat-outer {
+    min-height: calc(100vh - 120px);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 32px 0;
+    background: var(--chat-bg);
+}
+
+.chat-card {
+    width: 100%;
+    max-width: 700px;
+    height: 80vh;
+    background: var(--chat-card-bg);
+    border-radius: 22px;
+    box-shadow: var(--chat-card-shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-header-new {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--header-bg);
+    padding: 18px 24px 14px 24px;
+    border-bottom: 1px solid var(--input-border);
+}
+
+.chat-avatar img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 8px rgba(52,152,219,0.10);
+}
+
+.chat-header-info {
+    flex: 1;
+}
+
+.chat-header-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--header-title);
+}
+
+.chat-messages-new {
+    flex: 1 1 0%;
+    overflow-y: auto;
+    max-height: 65vh;
+    min-height: 200px;
+    padding: 28px 18px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: none;
+}
+
+.message-bubble {
+    max-width: 80%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--bubble-shadow);
+    border-radius: 18px;
+    padding: 0;
+    position: relative;
+    animation: fadeIn 0.3s;
+}
+.message-bubble.sent {
+    align-self: flex-end;
+    background: var(--bubble-sent);
+    color: var(--bubble-text-sent);
+    border-bottom-right-radius: 6px;
+}
+.message-bubble.received {
+    align-self: flex-start;
+    background: var(--bubble-received);
+    color: var(--bubble-text-received);
+    border-bottom-left-radius: 6px;
+}
+.bubble-content {
+    padding: 12px 18px 8px 18px;
+    font-size: 1rem;
+    line-height: 1.5;
+    word-break: break-word;
+}
+.bubble-meta {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6px;
+    padding: 0 14px 8px 14px;
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+.bubble-time {
+    color: inherit;
+}
+.bubble-status {
+    color: #fff;
+    font-size: 0.8em;
+    margin-left: 2px;
+}
+
+.no-messages {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #b0b0b0;
+    gap: 15px;
+    text-align: center;
+    padding: 30px;
+}
+.no-messages i {
+    font-size: 3rem;
+    opacity: 0.5;
+}
+
+.chat-form-new {
+    padding: 18px 18px 18px 18px;
+    background: var(--header-bg);
+    border-top: 1px solid var(--input-border);
+}
+.message-input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+}
+.message-input-new {
+    flex: 1;
+    min-height: 38px;
+    max-height: 120px;
+    border-radius: 22px;
+    border: 1.5px solid var(--input-border);
+    background: var(--input-bg);
+    color: var(--bubble-text-received);
+    font-size: 1rem;
+    padding: 12px 18px;
+    resize: none;
+    font-family: inherit;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04) inset;
+    transition: border 0.2s;
+}
+.message-input-new:focus {
+    outline: none;
+    border-color: var(--input-focus);
+}
+.send-btn-new {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--send-btn-bg);
+    color: #fff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    box-shadow: 0 2px 8px rgba(52,152,219,0.10);
+}
+.send-btn-new:hover {
+    background: var(--send-btn-hover);
+    transform: scale(1.08);
+}
+.send-btn-new i {
+    margin-left: 2px;
+}
+
+/* Scrollbar */
+.chat-messages-new::-webkit-scrollbar {
+    width: 7px;
+}
+.chat-messages-new::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: 3px;
+}
+.chat-messages-new::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 3px;
+}
+.chat-messages-new::-webkit-scrollbar-thumb:hover {
+    background: var(--send-btn-bg);
+}
+
+@media (max-width: 600px) {
+    .chat-card {
+        max-width: 100vw;
+        min-height: 100vh;
+        border-radius: 0;
+    }
+    .chat-outer {
+        padding: 0;
+    }
+    .chat-header-new {
+        padding: 12px 10px 10px 10px;
+    }
+    .chat-form-new {
+        padding: 10px;
+    }
+    .chat-messages-new {
+        padding: 14px 6px 10px 6px;
+    }
+}
+</style>
+
+<script>
+// Прокрутка чата вниз при загрузке
+window.addEventListener('DOMContentLoaded', function() {
+    const chatMessages = document.getElementById('chat-messages');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    document.querySelector('.message-input-new').focus();
+});
+// Автоматическая регулировка высоты текстового поля
+const msgInput = document.querySelector('.message-input-new');
+if (msgInput) {
+    msgInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+    msgInput.addEventListener('keydown', function(e) {
+        if ((e.key === 'Enter' && (e.ctrlKey || e.shiftKey))) {
+            e.preventDefault();
+            document.querySelector('.chat-form-new').submit();
+        }
+    });
+}
+</script>
+{% endblock %}

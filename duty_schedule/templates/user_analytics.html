@@ -1,0 +1,564 @@
+{% extends 'base.html' %}
+{% block title %}Аналитика дежурств{% endblock %}
+{% block content %}
+<div class="container analytics-container">
+    <h1 class="page-title"><i class="fas fa-chart-line"></i> Аналитика дежурств</h1>
+
+    <!-- Общая статистика -->
+    <div class="stats-cards">
+        <div class="stats-card monthly">
+            <div class="stats-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="stats-content">
+                <h3>За месяц</h3>
+                <div class="stats-value">{{ monthly_duties }} <span>дежурств</span></div>
+                <div class="stats-hours">{{ monthly_hours }} часов</div>
+            </div>
+        </div>
+        
+        <div class="stats-card quarterly">
+            <div class="stats-icon">
+                <i class="fas fa-calendar-week"></i>
+            </div>
+            <div class="stats-content">
+                <h3>За квартал</h3>
+                <div class="stats-value">{{ quarterly_duties }} <span>дежурств</span></div>
+                <div class="stats-hours">{{ quarterly_hours }} часов</div>
+            </div>
+        </div>
+        
+        <div class="stats-card yearly">
+            <div class="stats-icon">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stats-content">
+                <h3>За год</h3>
+                <div class="stats-value">{{ yearly_duties }} <span>дежурств</span></div>
+                <div class="stats-hours">{{ yearly_hours }} часов</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="analytics-grid">
+        <!-- Проверка дежурства на конкретную дату -->
+        <div class="analytics-card date-check">
+            <div class="card-header">
+                <h2><i class="fas fa-search"></i> Проверка дежурства</h2>
+            </div>
+            <div class="card-body">
+                <form method="get" class="date-form">
+                    <div class="form-group">
+                        <label for="date">Выберите дату для проверки:</label>
+                        <div class="date-input-group">
+                            <input type="date" name="date" id="date" value="{{ request.GET.date }}" class="form-control">
+                            <button type="submit" class="btn primary-btn"><i class="fas fa-check"></i> Проверить</button>
+                        </div>
+                    </div>
+                </form>
+                
+                {% if duties_on_date is not None %}
+                    <div class="result-box {% if duties_on_date %}duty-yes{% else %}duty-no{% endif %}">
+                        <i class="fas {% if duties_on_date %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                        <span>{{ duties_on_date|yesno:"Вы были на дежурстве в этот день,Вы не были на дежурстве в этот день" }}</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Экспорт данных -->
+        <div class="analytics-card export-section">
+            <div class="card-header">
+                <h2><i class="fas fa-file-export"></i> Экспорт данных</h2>
+            </div>
+            <div class="card-body">
+                <p>Экспортируйте данные о дежурствах в удобном для вас формате:</p>
+                <div class="export-buttons">
+                    <a href="?export_csv=1" class="btn export-btn csv">
+                        <i class="fas fa-file-csv"></i>
+                        <span>CSV формат</span>
+                        <small>Для Google Календаря</small>
+                    </a>
+                    <a href="?export_xlsx=1" class="btn export-btn xlsx">
+                        <i class="fas fa-file-excel"></i>
+                        <span>XLSX формат</span>
+                        <small>Для Excel</small>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Календарь дежурств за текущий месяц -->
+    <div class="analytics-card calendar-section">
+        <div class="card-header">
+            <h2><i class="fas fa-calendar"></i> Календарь дежурств за текущий месяц</h2>
+        </div>
+        <div class="card-body">
+            <div class="calendar-container">
+                <table class="calendar-table">
+                    <thead>
+                        <tr>
+                            <th>Пн</th>
+                            <th>Вт</th>
+                            <th>Ср</th>
+                            <th>Чт</th>
+                            <th>Пт</th>
+                            <th class="weekend">Сб</th>
+                            <th class="weekend">Вс</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for week in calendar %}
+                            <tr>
+                                {% for day in week %}
+                                    <td class="{% if day == 0 %}empty{% elif forloop.counter > 5 %}weekend{% endif %} {% if day in duty_dates %}duty-day{% endif %}">
+                                        {% if day != 0 %}
+                                            <div class="calendar-day">
+                                                <span class="day-number">{{ day }}</span>
+                                                {% if day in duty_dates %}
+                                                    <span class="duty-indicator" title="Дежурство"></span>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .analytics-container {
+        padding: 20px 0;
+    }
+    
+    .page-title {
+        font-size: 28px;
+        margin-bottom: 30px;
+        color: var(--heading-color, #2c3e50);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .page-title i {
+        color: var(--accent-color, #3498db);
+    }
+    
+    /* Статистические карточки */
+    .stats-cards {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+    
+    .stats-card {
+        flex: 1;
+        min-width: 200px;
+        background-color: var(--card-bg, white);
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .stats-card.monthly {
+        border-left: 4px solid #4CAF50;
+    }
+    
+    .stats-card.quarterly {
+        border-left: 4px solid #FF9800;
+    }
+    
+    .stats-card.yearly {
+        border-left: 4px solid #2196F3;
+    }
+    
+    .stats-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 20px;
+        font-size: 24px;
+    }
+    
+    .stats-card.monthly .stats-icon {
+        background-color: rgba(76, 175, 80, 0.1);
+        color: #4CAF50;
+    }
+    
+    .stats-card.quarterly .stats-icon {
+        background-color: rgba(255, 152, 0, 0.1);
+        color: #FF9800;
+    }
+    
+    .stats-card.yearly .stats-icon {
+        background-color: rgba(33, 150, 243, 0.1);
+        color: #2196F3;
+    }
+    
+    .stats-content h3 {
+        font-size: 14px;
+        font-weight: 500;
+        margin: 0 0 5px 0;
+        color: var(--label-color, #7f8c8d);
+        text-transform: uppercase;
+    }
+    
+    .stats-value {
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--heading-color, #2c3e50);
+        margin-bottom: 5px;
+    }
+    
+    .stats-value span {
+        font-size: 16px;
+        font-weight: 400;
+        opacity: 0.7;
+    }
+    
+    .stats-hours {
+        font-size: 14px;
+        color: var(--secondary-text, #7f8c8d);
+    }
+    
+    /* Сетка аналитических карточек */
+    .analytics-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    @media (max-width: 768px) {
+        .analytics-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    /* Карточка аналитики */
+    .analytics-card {
+        background-color: var(--card-bg, white);
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+    
+    .card-header {
+        padding: 20px;
+        background-color: var(--card-header-bg, #f9f9f9);
+        border-bottom: 1px solid var(--border-color, #eee);
+    }
+    
+    .card-header h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--heading-color, #2c3e50);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .card-header h2 i {
+        color: var(--accent-color, #3498db);
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    /* Форма проверки даты */
+    .date-form {
+        margin-bottom: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--label-color, #34495e);
+        font-weight: 500;
+    }
+    
+    .date-input-group {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .form-control {
+        flex: 1;
+        padding: 10px 15px;
+        border: 1px solid var(--input-border, #dfe4ea);
+        border-radius: 6px;
+        background-color: var(--input-bg, #f5f6fa);
+        font-size: 15px;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+        border-color: var(--focus-border, #3498db);
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+        outline: none;
+    }
+    
+    .primary-btn {
+        padding: 10px 20px;
+        background-color: var(--accent-color, #3498db);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+    }
+    
+    .primary-btn:hover {
+        background-color: var(--accent-hover, #2980b9);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+    }
+    
+    /* Результат проверки */
+    .result-box {
+        padding: 15px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: fadeIn 0.5s ease-out;
+    }
+    
+    .result-box.duty-yes {
+        background-color: rgba(76, 175, 80, 0.1);
+        border-left: 4px solid #4CAF50;
+        color: #2e7d32;
+    }
+    
+    .result-box.duty-no {
+        background-color: rgba(244, 67, 54, 0.1);
+        border-left: 4px solid #F44336;
+        color: #c62828;
+    }
+    
+    .result-box i {
+        font-size: 20px;
+    }
+    
+    /* Кнопки экспорта */
+    .export-buttons {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .export-btn {
+        flex: 1;
+        min-width: 150px;
+        padding: 15px;
+        border-radius: 8px;
+        border: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        gap: 5px;
+        text-align: center;
+        color: white;
+    }
+    
+    .export-btn i {
+        font-size: 24px;
+        margin-bottom: 5px;
+    }
+    
+    .export-btn span {
+        font-weight: 500;
+        font-size: 16px;
+    }
+    
+    .export-btn small {
+        font-size: 12px;
+        opacity: 0.8;
+    }
+    
+    .export-btn.csv {
+        background-color: #4CAF50;
+    }
+    
+    .export-btn.xlsx {
+        background-color: #2196F3;
+    }
+    
+    .export-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Календарь */
+    .calendar-container {
+        padding: 10px;
+        border-radius: 8px;
+    }
+    
+    .calendar-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 3px;
+    }
+    
+    .calendar-table th {
+        padding: 10px;
+        text-align: center;
+        font-weight: 500;
+        color: var(--heading-color, #2c3e50);
+        background-color: var(--card-header-bg, #f9f9f9);
+        border-radius: 6px;
+    }
+    
+    .calendar-table th.weekend {
+        background-color: rgba(244, 67, 54, 0.1);
+        color: #F44336;
+    }
+    
+    .calendar-table td {
+        height: 50px;
+        text-align: center;
+        vertical-align: middle;
+        border-radius: 6px;
+        position: relative;
+        transition: all 0.2s;
+    }
+    
+    .calendar-table td.empty {
+        background-color: transparent;
+    }
+    
+    .calendar-table td.weekend {
+        background-color: rgba(244, 67, 54, 0.05);
+    }
+    
+    .calendar-table td:not(.empty):hover {
+        background-color: var(--hover-bg, #f5f5f5);
+        transform: scale(1.05);
+        z-index: 1;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .calendar-day {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 5px;
+    }
+    
+    .day-number {
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--text-color, #2c3e50);
+    }
+    
+    .duty-day {
+        background-color: rgba(33, 150, 243, 0.1);
+    }
+    
+    .duty-indicator {
+        width: 8px;
+        height: 8px;
+        background-color: #2196F3;
+        border-radius: 50%;
+        position: absolute;
+        bottom: 5px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    /* Легенда календаря */
+    .calendar-legend {
+        display: none; /* Hide the legend */
+    }
+    
+    /* Анимации */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Темная тема */
+    .dark-theme .stats-card {
+        background-color: var(--dark-card-bg, #1e1e1e);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .dark-theme .analytics-card {
+        background-color: var(--dark-card-bg, #1e1e1e);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .dark-theme .card-header {
+        background-color: var(--dark-card-header, #2d2d2d);
+        border-color: var(--dark-border, #3d3d3d);
+    }
+    
+    .dark-theme .calendar-table th {
+        background-color: var(--dark-card-header, #2d2d2d);
+    }
+    
+    .dark-theme .calendar-table td:not(.empty):hover {
+        background-color: var(--dark-hover, #3d3d3d);
+    }
+    
+    .dark-theme .form-control {
+        background-color: var(--dark-input-bg, #2d2d2d);
+        border-color: var(--dark-border, #3d3d3d);
+        color: var(--dark-text, #e0e0e0);
+    }
+    
+    /* Для мобильных устройств */
+    @media (max-width: 576px) {
+        .stats-card {
+            min-width: 100%;
+        }
+        
+        .date-input-group {
+            flex-direction: column;
+        }
+        
+        .export-btn {
+            min-width: 100%;
+        }
+    }
+</style>
+{% endblock %}

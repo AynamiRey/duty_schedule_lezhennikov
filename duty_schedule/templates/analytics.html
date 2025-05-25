@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Аналитика дежурств{% endblock %}
+{% block content %}
+<div class="container">
+    <h2>Аналитика дежурств</h2>
+    <!-- Общая статистика -->
+    <div class="stats">
+        <h3>Общая статистика</h3>
+        <ul>
+            <li>За текущий месяц: {{ monthly_duties }} дежурств ({{ monthly_hours }} часов)</li>
+            <li>За текущий квартал: {{ quarterly_duties }} дежурств ({{ quarterly_hours }} часов)</li>
+            <li>За текущий год: {{ yearly_duties }} дежурств ({{ yearly_hours }} часов)</li>
+        </ul>
+    </div>
+    <!-- Проверка дежурства на конкретную дату -->
+    <div class="date-filter">
+        <h3>Проверка дежурства на конкретную дату</h3>
+        <form method="get">
+            <label for="date">Выберите дату:</label>
+            <input type="date" name="date" id="date" value="{{ request.GET.date }}">
+            <button type="submit">Проверить</button>
+        </form>
+        {% if duties_on_date is not None %}
+            <p>{% if duties_on_date %}Вы были на дежурстве.{% else %}Вы не были на дежурстве.{% endif %}</p>
+        {% endif %}
+    </div>
+    <!-- Таблица дежурств за текущий месяц -->
+    <div class="duties-table">
+        <h3>Список дежурств за текущий месяц</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for duty in current_month_duties %}
+                    <tr>
+                        <td>{{ duty.date }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="1">Нет дежурств за текущий месяц.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Экспорт данных -->
+    <div class="export-options">
+        <h3>Экспорт данных</h3>
+        <a href="?export_csv" class="btn">Экспорт в CSV</a>
+        <a href="?export_xlsx" class="btn">Экспорт в XLSX</a>
+    </div>
+</div>
+{% endblock %}

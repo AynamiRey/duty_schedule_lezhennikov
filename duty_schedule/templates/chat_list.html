@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Чаты{% endblock %}
+
+{% block content %}
+<div class="chat-list-container card">
+    <h2>Чаты</h2>
+    
+    <div class="chat-list">
+        {% for chat in chat_previews %}
+            <a href="{% url 'chat' chat.user.id %}" class="chat-item">
+                <div class="chat-info">
+                    <div class="chat-header">
+                        <h3 class="chat-name">
+                            {{ chat.user.last_name }} {{ chat.user.first_name }}
+                            {% if chat.unread_count > 0 %}
+                                <span class="unread-badge">{{ chat.unread_count }}</span>
+                            {% endif %}
+                        </h3>
+                    </div>
+                    <div class="chat-preview">
+                        {% if chat.last_message %}
+                            <p class="last-message">{{ chat.last_message.message|truncatechars:50 }}</p>
+                            <span class="message-time">{{ chat.last_message.timestamp|date:"d.m.Y H:i" }}</span>
+                        {% else %}
+                            <p class="no-messages">Нет сообщений</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+        {% empty %}
+            <div class="no-chats">
+                <p>Нет активных чатов</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.chat-list-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.chat-list {
+    margin-top: 20px;
+}
+
+.chat-item {
+    display: block;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    text-decoration: none;
+    color: var(--text-color);
+    transition: all 0.3s ease;
+}
+
+.chat-item:hover {
+    transform: translateX(5px);
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 5px var(--shadow-color);
+}
+
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.chat-name {
+    font-size: 1.1em;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.unread-badge {
+    background: var(--primary-color);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8em;
+}
+
+.chat-preview {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.last-message {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9em;
+    flex: 1;
+}
+
+.message-time {
+    color: var(--text-muted);
+    font-size: 0.8em;
+    white-space: nowrap;
+}
+
+.no-messages {
+    margin: 0;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.no-chats {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    background: var(--card-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+</style>
+{% endblock %}

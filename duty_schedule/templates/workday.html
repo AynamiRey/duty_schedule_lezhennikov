@@ -1,0 +1,694 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Рабочий день{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="container workday-container">
+    <h1 class="page-title"><i class="fas fa-business-time"></i> Рабочий день</h1>
+
+    <div class="workday-grid">
+        <!-- Таймер -->
+        <div class="workday-card timer-card">
+            <div class="card-header">
+                <h2><i class="fas fa-clock"></i> Таймер рабочего дня</h2>
+            </div>
+            <div class="card-body">
+                <div id="timer-display" class="timer-display" title="Нажмите для сброса">08:00:00</div>
+                <div class="timer-controls">
+                    <button id="start-timer" class="btn primary-btn"><i class="fas fa-play"></i> Старт</button>
+                    <button id="reset-timer" class="btn secondary-btn"><i class="fas fa-redo"></i> Сброс</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Блок учета рабочего времени -->
+        <div class="workday-card attendance-card">
+            <div class="card-header">
+                <h2><i class="fas fa-user-check"></i> Учет рабочего времени</h2>
+            </div>
+            <div class="card-body">
+                <button id="mark-attendance" class="btn primary-btn attendance-btn">
+                    <i class="fas fa-calendar-check"></i> Отметить посещение
+                </button>
+                <div id="attendance-message" class="message-container"></div>
+                
+                <div class="export-section">
+                    <h3><i class="fas fa-file-export"></i> Экспорт табеля</h3>
+                    <form method="post" action="{% url 'export_attendance' %}" class="export-form">
+                        {% csrf_token %}
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="start_date">Начало периода:</label>
+                                <div class="input-group">
+                                    <input type="date" id="start_date" name="start_date" required class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="end_date">Конец периода:</label>
+                                <div class="input-group">
+                                    <input type="date" id="end_date" name="end_date" required class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn export-btn">
+                            <i class="fas fa-file-excel"></i> Экспортировать табель
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Задачи на день -->
+    <div class="workday-card tasks-card">
+        <div class="card-header">
+            <h2><i class="fas fa-tasks"></i> Задачи на день</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" class="task-form" id="task-form">
+                {% csrf_token %}
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input type="text" name="task_text" placeholder="Введите новую задачу..." required class="form-control">
+                    </div>
+                    <button type="submit" name="add_task" class="btn primary-btn">
+                        <i class="fas fa-plus"></i> Добавить
+                    </button>
+                </div>
+            </form>
+            
+            <div class="task-list-container">
+                <ul class="task-list">
+                    {% for task in tasks %}
+                        <li class="task-item {% if task.completed %}completed{% endif %}" data-id="{{ task.id }}">
+                            <span class="task-text">{{ task.text }}</span>
+                            <button class="task-toggle" data-id="{{ task.id }}">
+                                <i class="fas {% if task.completed %}fa-check-circle{% else %}fa-circle{% endif %}"></i>
+                            </button>
+                        </li>
+                    {% empty %}
+                        <li class="task-item empty">
+                            <div class="empty-tasks">
+                                <i class="fas fa-clipboard"></i>
+                                <p>Нет задач на сегодня</p>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .workday-container {
+        padding: 20px 0;
+    }
+    
+    .page-title {
+        font-size: 28px;
+        margin-bottom: 30px;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .page-title i {
+        color: #3498db;
+    }
+    
+    .workday-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    @media (max-width: 768px) {
+        .workday-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .workday-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+    
+    .card-header {
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .card-header h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .card-header h2 i {
+        color: #3498db;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    h3 {
+        font-size: 16px;
+        font-weight: 500;
+        margin: 0 0 15px 0;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    h3 i {
+        color: #3498db;
+    }
+    
+    /* Таймер */
+    .timer-display {
+        font-size: 48px;
+        font-weight: 700;
+        text-align: center;
+        margin: 30px 0;
+        color: #3498db;
+        cursor: pointer;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s, color 0.3s;
+        user-select: none;
+    }
+    
+    .timer-display:hover {
+        transform: scale(1.05);
+        color: #2980b9;
+    }
+    
+    .timer-controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    /* Учет рабочего времени */
+    .attendance-btn {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 20px;
+        font-size: 16px;
+    }
+    
+    .export-section {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    @media (max-width: 576px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #34495e;
+        font-weight: 500;
+    }
+    
+    /* Задачи */
+    .input-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        align-items: stretch;
+    }
+    
+    .input-group .input-wrapper {
+        flex: 3;
+    }
+    
+    .input-group .btn {
+        flex: 1;
+        height: auto;
+        padding: 10px 15px;
+        white-space: nowrap;
+    }
+    
+    .input-wrapper {
+        position: relative;
+        flex: 1;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #dfe4ea;
+        border-radius: 6px;
+        background-color: #f5f6fa;
+        font-size: 15px;
+        color: #2c3e50;
+        transition: all 0.3s;
+        height: 100%;
+    }
+    
+    /* Поля выбора даты без иконок */
+    input[type="date"].form-control {
+        padding: 10px 15px;
+    }
+    
+    .form-control:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+        outline: none;
+    }
+    
+    .export-btn {
+        width: 100%;
+        background-color: #2196F3;
+        color: white;
+        padding: 12px;
+        border-radius: 6px;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.3s;
+        cursor: pointer;
+        font-weight: 500;
+    }
+    
+    .export-btn:hover {
+        background-color: #1976D2;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+    }
+    
+    .task-list-container {
+        max-height: 350px;
+        overflow-y: auto;
+        padding: 5px;
+    }
+    
+    .task-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .task-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        margin-bottom: 10px;
+        background-color: #ffffff;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+    
+    .task-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    }
+    
+    .task-item.completed {
+        opacity: 0.7;
+        background-color: #f8f9fa;
+    }
+    
+    .task-item.completed .task-text {
+        text-decoration: line-through;
+        color: #7f8c8d;
+    }
+    
+    .task-text {
+        flex: 1;
+        font-size: 15px;
+        color: #2c3e50;
+    }
+    
+    .task-toggle {
+        background: none;
+        border: none;
+        padding: 5px;
+        cursor: pointer;
+        font-size: 22px;
+        color: #95a5a6;
+        transition: all 0.3s;
+    }
+    
+    .task-toggle:hover {
+        transform: scale(1.2);
+        color: #3498db;
+    }
+    
+    .task-item.completed .task-toggle {
+        color: #4CAF50;
+    }
+    
+    .empty-tasks {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 30px;
+        color: #7f8c8d;
+        text-align: center;
+    }
+    
+    .empty-tasks i {
+        font-size: 36px;
+        margin-bottom: 10px;
+        opacity: 0.5;
+    }
+    
+    /* Сообщения */
+    .message-container {
+        min-height: 40px;
+        margin-bottom: 10px;
+    }
+    
+    .message {
+        padding: 10px 15px;
+        border-radius: 6px;
+        font-size: 14px;
+        animation: fadeIn 0.5s ease-out;
+    }
+    
+    .message.success {
+        background-color: rgba(76, 175, 80, 0.1);
+        border-left: 4px solid #4CAF50;
+        color: #2e7d32;
+    }
+    
+    .message.error {
+        background-color: rgba(244, 67, 54, 0.1);
+        border-left: 4px solid #F44336;
+        color: #c62828;
+    }
+    
+    /* Анимации */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Стили для кнопок */
+    .btn {
+        padding: 10px 20px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .primary-btn {
+        background-color: #3498db;
+        color: #ffffff;
+    }
+    
+    .primary-btn:hover {
+        background-color: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+    }
+    
+    .secondary-btn {
+        background-color: #95a5a6;
+        color: #ffffff;
+    }
+    
+    .secondary-btn:hover {
+        background-color: #7f8c8d;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(149, 165, 166, 0.3);
+    }
+    
+    /* Стили для темной темы (привязаны к атрибуту data-theme) */
+    [data-theme="dark"] .workday-card {
+        background-color: #1e1e1e;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    [data-theme="dark"] .card-header {
+        background-color: #2d2d2d;
+        border-color: #3d3d3d;
+    }
+    
+    [data-theme="dark"] .task-item {
+        background-color: #1e1e1e;
+        border-color: #3d3d3d;
+    }
+    
+    [data-theme="dark"] .task-item.completed {
+        background-color: rgba(45, 45, 45, 0.7);
+    }
+    
+    [data-theme="dark"] .form-control {
+        background-color: #2d2d2d;
+        border-color: #3d3d3d;
+        color: #e0e0e0;
+    }
+    
+    [data-theme="dark"] .export-section {
+        border-color: #3d3d3d;
+    }
+    
+    [data-theme="dark"] .page-title {
+        color: #e0e0e0;
+    }
+    
+    [data-theme="dark"] .timer-display {
+        color: #63b3ed;
+    }
+    
+    [data-theme="dark"] .timer-display:hover {
+        color: #90cdf4;
+    }
+    
+    [data-theme="dark"] .task-text {
+        color: #e0e0e0;
+    }
+</style>
+
+<script>
+    // Решение проблемы с повторной отправкой формы при перезагрузке страницы
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+    
+    // Очистка формы после успешной отправки
+    document.addEventListener('DOMContentLoaded', function() {
+        const taskForm = document.getElementById('task-form');
+        if (taskForm) {
+            taskForm.addEventListener('submit', function() {
+                // Сохраняем значение для предотвращения повторной отправки
+                sessionStorage.setItem('formSubmitted', 'true');
+            });
+            
+            // Проверяем, была ли форма только что отправлена
+            if (sessionStorage.getItem('formSubmitted')) {
+                sessionStorage.removeItem('formSubmitted');
+                taskForm.reset();
+            }
+        }
+    });
+
+    // Загружаем состояние таймера из localStorage
+    let timeLeft = parseInt(localStorage.getItem('timerTime')) || (8 * 60 * 60); // 8 часов в секундах по умолчанию
+    let timerRunning = localStorage.getItem('timerRunning') === 'true' || false;
+
+    let timerInterval;
+
+    const timerDisplay = document.getElementById('timer-display');
+    const startBtn = document.getElementById('start-timer');
+    const resetBtn = document.getElementById('reset-timer');
+    const markAttendanceBtn = document.getElementById('mark-attendance');
+    const attendanceMessage = document.getElementById('attendance-message');
+
+    function updateTimer() {
+        const hours = Math.floor(timeLeft / 3600);
+        const minutes = Math.floor((timeLeft % 3600) / 60);
+        const seconds = timeLeft % 60;
+        timerDisplay.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        localStorage.setItem('timerTime', timeLeft); // Сохраняем текущее время
+        localStorage.setItem('timerRunning', timerRunning); // Сохраняем статус таймера
+    }
+
+    // Инициализация состояния кнопок и таймера при загрузке
+    function initializeTimer() {
+        updateTimer();
+        startBtn.disabled = timerRunning;
+        resetBtn.disabled = !timerRunning && timeLeft === (8 * 60 * 60); // Отключаем сброс, если таймер не запущен и уже на 8:00:00
+
+        if (timerRunning) {
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateTimer();
+                } else {
+                    clearInterval(timerInterval);
+                    timerRunning = false;
+                    localStorage.setItem('timerRunning', 'false');
+                    startBtn.disabled = false;
+                    resetBtn.disabled = true; // Отключаем сброс после завершения
+                    alert('Рабочий день завершен!');
+                }
+            }, 1000);
+        }
+    }
+
+    startBtn.addEventListener('click', () => {
+        if (!timerRunning) {
+            timerRunning = true;
+            localStorage.setItem('timerRunning', 'true');
+            startBtn.disabled = true;
+            resetBtn.disabled = false; // Включаем кнопку сброса, когда таймер запущен
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateTimer();
+                } else {
+                    clearInterval(timerInterval);
+                    timerRunning = false;
+                    localStorage.setItem('timerRunning', 'false');
+                    startBtn.disabled = false;
+                    resetBtn.disabled = true; // Отключаем сброс после завершения
+                    alert('Рабочий день завершен!');
+                }
+            }, 1000);
+        }
+    });
+
+    resetBtn.addEventListener('click', () => {
+        if (timerRunning) {
+            clearInterval(timerInterval); // Останавливаем текущий таймер
+            timerRunning = false;
+        }
+        timeLeft = 8 * 60 * 60; // Сбрасываем на 8 часов
+        updateTimer();
+        localStorage.setItem('timerTime', timeLeft);
+        localStorage.setItem('timerRunning', timerRunning);
+        startBtn.disabled = false;
+        resetBtn.disabled = true; // Отключаем кнопку сброса после сброса, если таймер не запущен
+    });
+
+    // Обработка клика по дисплею таймера для сброса
+    timerDisplay.addEventListener('click', () => {
+        if (timerRunning) {
+            clearInterval(timerInterval); // Останавливаем текущий таймер
+            timerRunning = false;
+        }
+        timeLeft = 8 * 60 * 60; // Сбрасываем на 8 часов
+        updateTimer();
+        localStorage.setItem('timerTime', timeLeft);
+        localStorage.setItem('timerRunning', timerRunning);
+        startBtn.disabled = false;
+        resetBtn.disabled = true; // Отключаем кнопку сброса после сброса, если таймер не запущен
+    });
+
+    // Обработка отметки посещения через AJAX
+    markAttendanceBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        fetch('/workday/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'mark_attendance=1'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                attendanceMessage.innerHTML = '<div class="message success"><i class="fas fa-check-circle"></i> Посещение успешно отмечено!</div>';
+                setTimeout(() => {
+                    attendanceMessage.innerHTML = '';
+                }, 3000);
+            } else {
+                attendanceMessage.innerHTML = '<div class="message error"><i class="fas fa-exclamation-circle"></i> Ошибка при отметке посещения.</div>';
+                setTimeout(() => {
+                    attendanceMessage.innerHTML = '';
+                }, 3000);
+            }
+        })
+        .catch(error => {
+            attendanceMessage.innerHTML = '<div class="message error"><i class="fas fa-exclamation-circle"></i> Произошла ошибка. Попробуйте позже.</div>';
+            setTimeout(() => {
+                attendanceMessage.innerHTML = '';
+            }, 3000);
+        });
+    });
+
+    // Обработка задач через AJAX
+    document.querySelectorAll('.task-toggle').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const taskId = button.getAttribute('data-id');
+            fetch(`/workday/toggle-task/${taskId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ task_id: taskId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const taskItem = button.parentElement;
+                    const isCompleted = taskItem.classList.toggle('completed'); // Переключаем класс completed
+                    const icon = button.querySelector('i');
+                    if (isCompleted) {
+                        icon.classList.remove('fa-circle');
+                        icon.classList.add('fa-check-circle');
+                    } else {
+                        icon.classList.remove('fa-check-circle');
+                        icon.classList.add('fa-circle');
+                    }
+                }
+            });
+        });
+    });
+
+    // Инициализация при загрузке страницы
+    initializeTimer();
+</script>
+{% endblock %}

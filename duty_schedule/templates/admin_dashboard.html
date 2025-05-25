@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% load static %} <!-- Загружаем тег static -->
+{% block title %}Админ-панель{% endblock %}
+{% block content %}
+<h2>Админ-панель</h2>
+<meta name="csrf-token" content="{{ csrf_token }}">
+<!-- Навигация по месяцам -->
+<div style="text-align: center; margin-bottom: 20px;">
+    <a href="?year={{ current_year }}&month={{ current_month|add:'-1' }}" class="nav-button month-nav">←</a>
+    <span style="font-size: 18px; font-weight: bold; margin: 0 20px;">
+        {{ current_month_name|capfirst }} {{ current_year }}
+    </span>
+    <a href="?year={{ current_year }}&month={{ current_month|add:'1' }}" class="nav-button month-nav">→</a>
+</div>
+
+<div style="overflow-x: auto; margin: 0 auto; text-align: center;">
+    <table border="1" style="margin: 0 auto; border-collapse: collapse; width: 90%; max-width: 1200px;">
+        <thead>
+            <tr>
+                <!-- Заголовок для пользователей -->
+                <th style="height: 50px; vertical-align: middle;">Пользователи</th>
+                <!-- Заголовки для дат в цифровом формате -->
+                {% for digital_date, is_weekend in digital_dates %}
+                    <th class="date-header" style="{% if is_weekend %}background-color: #f0f0f0; color: black;{% endif %}">
+                        {{ digital_date }}
+                    </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody id="duty-table-body">
+            <!-- Строки таблицы будут загружены через AJAX -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Передача данных через json_script -->
+{{ users|json_script:"users-data" }}
+{{ days_in_month|json_script:"days-in-month-data" }}
+
+<!-- Кнопка экспорта в XLSX -->
+<div class="export-options" style="text-align: center; margin-top: 20px;">
+    <a href="?export_xlsx=1" class="btn">Экспорт в XLSX</a>
+</div>
+
+<script>
+    // Функция для загрузки данных о дежурствах через AJAX
+    function loadDuties() {
+        // Получаем текущие значения year и month из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentYear = urlParams.get('year') || new Date().getFullYear();
+        const currentMonth = urlParams.get('month') || new Date().getMonth() + 1;
+
+        fetch(`/get-duties/?year=${currentYear}&month=${currentMonth}`)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('duty-table-body');
+                tableBody.innerHTML = ''; // Очищаем таблицу
+
+                // Получаем данные о пользователях и днях из DOM
+                const users = JSON.parse(document.getElementById('users-data').textContent);
+                const daysInMonth = JSON.parse(document.getElementById('days-in-month-data').textContent);
+
+                console.log('Users:', users); // Логирование для отладки
+                console.log('Days in Month:', daysInMonth); // Логирование для отладки
+
+                // Создаем строки таблицы
+                users.forEach(user => {
+                    const row = document.createElement('tr');
+
+                    // Ячейка с именем пользователя
+                    const userCell = document.createElement('td');
+                    userCell.style.height = '30px'; // Высота строки
+                    userCell.style.verticalAlign = 'middle';
+                    userCell.style.textAlign = 'left';
+                    userCell.style.paddingLeft = '5px';
+                    userCell.textContent = user.full_name;
+                    row.appendChild(userCell);
+
+                    // Ячейки с дежурствами
+                    daysInMonth.forEach(([year, month, day, formattedDate, isWeekend]) => {
+                        const cell = document.createElement('td');
+                        const dateKey = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                        cell.setAttribute('data-user-id', user.id);
+                        cell.setAttribute('data-date', dateKey);
+                        cell.classList.add('duty-cell');
+                        cell.style.cursor = 'pointer';
+                        cell.style.textAlign = 'center';
+                        cell.style.height = '30px'; // Высота строки
+                        cell.style.verticalAlign = 'middle';
+
+                        if (isWeekend) {
+                            cell.style.backgroundColor = '#f0f0f0';
+                            cell.style.color = 'black';
+                        }
+
+                        // Проверяем, есть ли дежурство
+                        const key = `${user.id}-${dateKey}`;
+                        if (data[key]) {
+                            cell.textContent = 'Д';
+                        }
+
+                        // Добавляем обработчик события клика
+                        cell.addEventListener('click', () => {
+                            const userId = cell.getAttribute('data-user-id');
+                            const date = cell.getAttribute('data-date');
+                            console.log(`Clicked cell: user_id=${userId}, date=${date}`); // Логирование для отладки
+
+                            fetch('/assign-duty/', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                },
+                                body: JSON.stringify({
+                                    user_id: userId,
+                                    date: date,
+                                }),
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    if (data.action === 'assigned') {
+                                        cell.textContent = 'Д'; // Добавляем отметку о дежурстве
+                                    } else {
+                                        cell.textContent = ''; // Убираем отметку о дежурстве
+                                    }
+                                } else {
+                                    alert(`Ошибка: ${data.error}`);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error during assign_duty request:', error); // Логирование ошибок
+                            });
+                        });
+
+                        row.appendChild(cell);
+                    });
+
+                    tableBody.appendChild(row);
+                });
+            });
+    }
+
+    // Загружаем данные при загрузке страницы
+    document.addEventListener('DOMContentLoaded', loadDuties);
+</script>
+
+<style>
+    /* Стили для таблицы */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 5px;
+        text-align: center;
+        font-size: 12px; /* Уменьшаем размер шрифта */
+    }
+    /* Вертикальное отображение дат */
+    th.date-header {
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        white-space: nowrap;
+        height: 100px; /* Высота для вертикальных заголовков */
+        padding: 0 5px;
+    }
+    /* Сужение строк */
+    tr {
+        height: 30px; /* Высота строки */
+    }
+    /* Подсветка выходных дней */
+    td.weekend {
+        background-color: #f0f0f0;
+    }
+</style>
+{% endblock %}

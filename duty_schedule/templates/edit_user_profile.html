@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Редактирование профиля пользователя</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn">Сохранить</button>
+    <a href="{% url 'admin_dashboard' %}" class="btn">Отмена</a>
+</form>
+{% endblock %}

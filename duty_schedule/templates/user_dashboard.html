@@ -1,0 +1,848 @@
+{% extends 'base.html' %}
+{% block title %}Панель пользователя{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 class="page-title" id="user-full-name">Добро пожаловать, {{ user_info.first_name }} {{ user_info.last_name }}</h1>
+
+    <!-- Обновленный дизайн профиля пользователя -->
+    <div class="card user-profile">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <h2 class="card-title">Мой профиль</h2>
+            <button id="open-edit-modal" class="btn edit-btn"><i class="fas fa-edit"></i> Редактировать</button>
+        </div>
+        
+        <div class="profile-content">
+            <div class="profile-section">
+                <h3 class="section-title">Личная информация</h3>
+        <div class="user-details">
+            <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-user"></i> Логин:</span>
+                <span class="detail-value" data-field="username">{{ user_info.username }}</span>
+            </div>
+            <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-signature"></i> Имя:</span>
+                <span class="detail-value" data-field="first_name">{{ user_info.first_name }}</span>
+            </div>
+            <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-signature"></i> Фамилия:</span>
+                <span class="detail-value" data-field="last_name">{{ user_info.last_name }}</span>
+            </div>
+            <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-signature"></i> Отчество:</span>
+                        <span class="detail-value" data-field="middle_name">{{ user_info.middle_name|default:"Не указано" }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-envelope"></i> Email:</span>
+                <span class="detail-value" data-field="email">{{ user_info.email }}</span>
+            </div>
+            <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-birthday-cake"></i> Дата рождения:</span>
+                        <span class="detail-value" data-field="birth_date">{{ user_info.birth_date|default:"Не указана" }}</span>
+                    </div>
+            </div>
+            </div>
+            
+            <div class="profile-section">
+                <h3 class="section-title">Служебная информация</h3>
+                <div class="user-details">
+            <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-briefcase"></i> Должность:</span>
+                <span class="detail-value" data-field="position">{{ user_info.position|default:"Не указана" }}</span>
+            </div>
+            <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-medal"></i> Звание:</span>
+                <span class="detail-value" data-field="rank">{{ user_info.rank|default:"Не указано" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Обновленный список дежурств с пагинацией -->
+    <div class="card duties-section">
+        <h2 class="card-title"><i class="fas fa-calendar-check"></i> Мои дежурства</h2>
+        <div id="duties-content">
+        {% if duties %}
+                <ul class="duty-list" id="duty-list">
+                {% for duty in duties %}
+                    <li class="duty-item">
+                            <div class="duty-icon">
+                                <i class="fas fa-calendar-day"></i>
+                            </div>
+                            <div class="duty-info">
+                        <span class="duty-date">{{ duty.date|date:"d.m.Y" }}</span>
+                                <span class="duty-weekday">{{ duty.date|date:"l"|capfirst }}</span>
+                            </div>
+                    </li>
+                {% endfor %}
+            </ul>
+                
+                <!-- Блок пагинации -->
+                <div class="pagination" id="pagination-block">
+                    <div class="pagination-info">
+                        Страница <span id="current-page">{{ duties.number }}</span> из <span id="total-pages">{{ duties.paginator.num_pages }}</span>
+                    </div>
+                    
+                    <div class="pagination-controls" id="pagination-controls">
+                        {% if duties.has_previous %}
+                            <a href="javascript:void(0)" class="page-link" data-page="1"><i class="fas fa-angle-double-left"></i></a>
+                            <a href="javascript:void(0)" class="page-link" data-page="{{ duties.previous_page_number }}"><i class="fas fa-angle-left"></i></a>
+                        {% else %}
+                            <span class="page-link disabled"><i class="fas fa-angle-double-left"></i></span>
+                            <span class="page-link disabled"><i class="fas fa-angle-left"></i></span>
+                        {% endif %}
+                        
+                        {% for num in duties.paginator.page_range %}
+                            {% if num == duties.number %}
+                                <span class="page-link active" data-page="{{ num }}">{{ num }}</span>
+                            {% elif num > duties.number|add:"-3" and num < duties.number|add:"3" %}
+                                <a href="javascript:void(0)" class="page-link" data-page="{{ num }}">{{ num }}</a>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if duties.has_next %}
+                            <a href="javascript:void(0)" class="page-link" data-page="{{ duties.next_page_number }}"><i class="fas fa-angle-right"></i></a>
+                            <a href="javascript:void(0)" class="page-link" data-page="{{ duties.paginator.num_pages }}"><i class="fas fa-angle-double-right"></i></a>
+                        {% else %}
+                            <span class="page-link disabled"><i class="fas fa-angle-right"></i></span>
+                            <span class="page-link disabled"><i class="fas fa-angle-double-right"></i></span>
+                        {% endif %}
+                    </div>
+                </div>
+        {% else %}
+                <p class="no-data" id="no-data"><i class="fas fa-info-circle"></i> Нет данных о дежурствах.</p>
+        {% endif %}
+        </div>
+        <!-- Индикатор загрузки -->
+        <div class="loading-spinner" id="loading-spinner" style="display: none;">
+            <i class="fas fa-circle-notch fa-spin"></i>
+            <span>Загрузка...</span>
+        </div>
+    </div>
+
+    <!-- Модальное окно для редактирования профиля -->
+    <div id="edit-profile-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">×</span>
+            <h3><i class="fas fa-user-edit"></i> Редактировать профиль</h3>
+            <form id="edit-profile-form" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_first_name">Имя:</label>
+                    <input type="text" id="id_first_name" name="first_name" value="{{ user_info.first_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="id_last_name">Фамилия:</label>
+                    <input type="text" id="id_last_name" name="last_name" value="{{ user_info.last_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="id_email">Email:</label>
+                    <input type="email" id="id_email" name="email" value="{{ user_info.email }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="id_middle_name">Отчество:</label>
+                    <input type="text" id="id_middle_name" name="middle_name" value="{{ user_info.middle_name|default:'' }}">
+                </div>
+                <div class="form-group">
+                    <label for="id_birth_date">Дата рождения:</label>
+                    <input type="date" id="id_birth_date" name="birth_date" value="{{ user_info.birth_date|date:'Y-m-d'|default:'' }}">
+                </div>
+                <div class="form-group">
+                    <label for="id_position">Должность:</label>
+                    <input type="text" id="id_position" name="position" value="{{ user_info.position|default:'' }}">
+                </div>
+                <div class="form-group">
+                    <label for="id_rank">Звание:</label>
+                    <input type="text" id="id_rank" name="rank" value="{{ user_info.rank|default:'' }}">
+                </div>
+                <button type="submit" class="btn"><i class="fas fa-save"></i> Сохранить изменения</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .user-profile {
+        margin-bottom: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .profile-header {
+        display: flex;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid var(--border-color, #eee);
+        background-color: var(--card-header-bg, #f9f9f9);
+        position: relative;
+    }
+    
+    .profile-avatar {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--accent-color, #3498db);
+        color: #fff;
+        border-radius: 50%;
+        margin-right: 15px;
+        font-size: 30px;
+    }
+    
+    .profile-content {
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .profile-section {
+        padding: 20px;
+        width: 100%;
+    }
+    
+    @media (min-width: 768px) {
+        .profile-section {
+            width: 50%;
+        }
+    }
+    
+    .section-title {
+        font-size: 18px;
+        margin-bottom: 15px;
+        color: var(--heading-color, #2c3e50);
+        border-bottom: 2px solid var(--accent-color, #3498db);
+        padding-bottom: 8px;
+        display: inline-block;
+    }
+    
+    .card-title {
+        margin: 0;
+        flex-grow: 1;
+        font-size: 22px;
+    }
+    
+    .edit-btn {
+        background-color: var(--accent-color, #3498db);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .edit-btn:hover {
+        background-color: var(--accent-hover, #2980b9);
+        transform: translateY(-2px);
+    }
+    
+    .user-details {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .detail-row {
+        display: flex;
+        align-items: baseline;
+    }
+    
+    .detail-label {
+        min-width: 140px;
+        font-weight: 500;
+        color: var(--label-color, #7f8c8d);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .detail-value {
+        color: var(--text-color, #2c3e50);
+        font-weight: 400;
+        flex-grow: 1;
+        transition: all 0.3s;
+    }
+    
+    .detail-value.updated {
+        background-color: #fff9c4;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* Стили для списка дежурств */
+    .duties-section {
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+    
+    .duties-section .card-title {
+        padding: 20px;
+        border-bottom: 1px solid var(--border-color, #eee);
+        background-color: var(--card-header-bg, #f9f9f9);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .duty-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .duty-item {
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--border-color, #eee);
+        display: flex;
+        align-items: center;
+        transition: background-color 0.2s ease;
+    }
+    
+    .duty-item:last-child {
+        border-bottom: none;
+    }
+    
+    .duty-item:hover {
+        background-color: var(--hover-bg, #f5f5f5);
+    }
+    
+    .duty-icon {
+        width: 40px;
+        height: 40px;
+        background-color: var(--accent-light, rgba(52, 152, 219, 0.2));
+        color: var(--accent-color, #3498db);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-size: 18px;
+    }
+    
+    .duty-info {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .duty-date {
+        font-weight: 500;
+        color: var(--text-color, #2c3e50);
+    }
+    
+    .duty-weekday {
+        font-size: 14px;
+        color: var(--secondary-text, #7f8c8d);
+    }
+    
+    .no-data {
+        padding: 30px 20px;
+        text-align: center;
+        color: var(--secondary-text, #7f8c8d);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        font-style: italic;
+    }
+    
+    /* Стили пагинации */
+    .pagination {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        border-top: 1px solid var(--border-color, #eee);
+    }
+    
+    .pagination-info {
+        color: var(--secondary-text, #7f8c8d);
+        font-size: 14px;
+    }
+    
+    .pagination-controls {
+        display: flex;
+        gap: 5px;
+    }
+    
+    .page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 5px;
+        color: var(--text-color, #2c3e50);
+        text-decoration: none;
+        background-color: var(--bg-light, #f5f5f5);
+        transition: all 0.2s;
+    }
+    
+    .page-link:hover {
+        background-color: var(--accent-light, rgba(52, 152, 219, 0.2));
+    }
+    
+    .page-link.active {
+        background-color: var(--accent-color, #3498db);
+        color: white;
+    }
+    
+    .page-link.disabled {
+        color: var(--disabled-color, #ccc);
+        cursor: not-allowed;
+    }
+    
+    /* Модальное окно */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        overflow: auto;
+    }
+    
+    .modal-content {
+        background-color: var(--modal-bg, white);
+        margin: 5% auto;
+        padding: 30px;
+        width: 90%;
+        max-width: 600px;
+        border-radius: 10px;
+        box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+        position: relative;
+    }
+    
+    .close-modal {
+        position: absolute;
+        right: 20px;
+        top: 15px;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        color: var(--secondary-text, #7f8c8d);
+        transition: color 0.2s;
+    }
+    
+    .close-modal:hover {
+        color: var(--accent-color, #3498db);
+    }
+    
+    .modal h3 {
+        margin-top: 0;
+        color: var(--heading-color, #2c3e50);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 22px;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border-color, #eee);
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--label-color, #7f8c8d);
+        font-weight: 500;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid var(--border-color, #ddd);
+        border-radius: 5px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--accent-color, #3498db);
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+    
+    /* Темная тема */
+    .dark-theme .user-profile,
+    .dark-theme .duties-section {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .dark-theme .profile-header,
+    .dark-theme .duties-section .card-title {
+        background-color: var(--dark-card-header, #333);
+        border-color: var(--dark-border, #444);
+    }
+    
+    .dark-theme .duty-item {
+        border-color: var(--dark-border, #444);
+    }
+    
+    .dark-theme .duty-item:hover {
+        background-color: var(--dark-hover, #333);
+    }
+    
+    .dark-theme .page-link {
+        background-color: var(--dark-bg-light, #333);
+    }
+    
+    .dark-theme .pagination {
+        border-color: var(--dark-border, #444);
+    }
+    
+    .dark-theme .modal-content {
+        background-color: var(--dark-modal-bg, #222);
+    }
+    
+    .dark-theme .modal h3 {
+        border-color: var(--dark-border, #444);
+    }
+    
+    .dark-theme .form-group input {
+        background-color: var(--dark-input-bg, #333);
+        border-color: var(--dark-border, #444);
+        color: var(--dark-text, #eee);
+    }
+    
+    /* Для мобильных устройств */
+    @media (max-width: 767px) {
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 10px;
+        }
+        
+        .profile-avatar {
+            margin-right: 0;
+        }
+        
+        .edit-btn {
+            margin-top: 10px;
+        }
+        
+        .detail-row {
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .detail-label {
+            min-width: auto;
+        }
+        
+        .pagination-controls {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    }
+    
+    /* Стили для индикатора загрузки */
+    .loading-spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        color: var(--accent-color, #3498db);
+        font-size: 16px;
+        gap: 10px;
+    }
+    
+    .loading-spinner i {
+        font-size: 24px;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
+<script>
+    // Открытие и закрытие модального окна
+    const modal = document.getElementById('edit-profile-modal');
+    const openModalBtn = document.getElementById('open-edit-modal');
+    const closeModalBtn = document.querySelector('.close-modal');
+
+    // Устанавливаем модальное окно закрытым по умолчанию
+    modal.style.display = 'none';
+
+    openModalBtn.addEventListener('click', () => {
+        modal.style.display = 'block';
+    });
+
+    closeModalBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    // Закрытие модального окна при клике вне его
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    // Обработка формы редактирования профиля через AJAX
+    document.getElementById('edit-profile-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+
+        fetch('/update-profile/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                first_name: formData.get('first_name'),
+                last_name: formData.get('last_name'),
+                email: formData.get('email'),
+                middle_name: formData.get('middle_name'),
+                birth_date: formData.get('birth_date'),
+                position: formData.get('position'),
+                rank: formData.get('rank'),
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Создаем уведомление об успешном обновлении
+                const notification = document.createElement('div');
+                notification.className = 'success-notification';
+                notification.innerHTML = '<i class="fas fa-check-circle"></i> Профиль успешно обновлен!';
+                document.body.appendChild(notification);
+                
+                // Через 3 секунды удаляем уведомление
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+                
+                modal.style.display = 'none'; // Закрываем модальное окно после успешного обновления
+
+                // Обновляем отображаемые данные на странице
+                const fields = {
+                    'username': formData.get('username') || '{{ user_info.username }}',
+                    'first_name': formData.get('first_name'),
+                    'last_name': formData.get('last_name'),
+                    'email': formData.get('email'),
+                    'middle_name': formData.get('middle_name') || 'Не указано',
+                    'birth_date': formData.get('birth_date') ? new Date(formData.get('birth_date')).toLocaleDateString('ru-RU') : 'Не указана',
+                    'position': formData.get('position') || 'Не указана',
+                    'rank': formData.get('rank') || 'Не указана'
+                };
+
+                // Обновляем заголовок (имя и фамилию)
+                document.getElementById('user-full-name').textContent = `Добро пожаловать, ${fields.first_name} ${fields.last_name}`;
+
+                // Обновляем все элементы с классом detail-value
+                document.querySelectorAll('.detail-value').forEach(element => {
+                    const field = element.getAttribute('data-field');
+                    if (fields[field]) {
+                        element.textContent = fields[field];
+                        element.classList.add('updated');
+                        setTimeout(() => element.classList.remove('updated'), 2000);
+                    }
+                });
+            } else {
+                alert('Ошибка при обновлении профиля: ' + (data.error || 'Неизвестная ошибка'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Произошла ошибка. Попробуйте позже.');
+        });
+    });
+
+    // JavaScript для асинхронной пагинации
+    document.addEventListener('DOMContentLoaded', function() {
+        // Находим контейнер с элементами пагинации
+        const paginationControls = document.getElementById('pagination-controls');
+        
+        // Если есть элементы пагинации, добавляем обработчик событий
+        if (paginationControls) {
+            paginationControls.addEventListener('click', function(e) {
+                // Проверяем, был ли клик по ссылке пагинации
+                if (e.target.closest('.page-link:not(.disabled):not(.active)')) {
+                    e.preventDefault();
+                    
+                    // Получаем номер страницы из data-атрибута
+                    const pageLink = e.target.closest('.page-link');
+                    const pageNumber = pageLink.getAttribute('data-page');
+                    
+                    if (pageNumber) {
+                        loadDutiesPage(pageNumber);
+                    }
+                }
+            });
+        }
+        
+        // Функция для загрузки данных о дежурствах с сервера
+        function loadDutiesPage(pageNumber) {
+            // Показываем индикатор загрузки
+            document.getElementById('loading-spinner').style.display = 'flex';
+            
+            // Выполняем AJAX-запрос к серверу
+            fetch(`/get-duties-json/?page=${pageNumber}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Обновляем данные на странице
+                    updateDutiesList(data.duties);
+                    updatePagination(data.pagination);
+                    
+                    // Скрываем индикатор загрузки
+                    document.getElementById('loading-spinner').style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Ошибка при загрузке данных:', error);
+                    document.getElementById('loading-spinner').style.display = 'none';
+                    alert('Произошла ошибка при загрузке данных. Пожалуйста, попробуйте еще раз.');
+                });
+        }
+        
+        // Функция для обновления списка дежурств
+        function updateDutiesList(duties) {
+            const dutyList = document.getElementById('duty-list');
+            const noDataBlock = document.getElementById('no-data');
+            
+            // Если нет дежурств, показываем сообщение об отсутствии данных
+            if (duties.length === 0) {
+                if (dutyList) dutyList.style.display = 'none';
+                if (noDataBlock) noDataBlock.style.display = 'block';
+                return;
+            }
+            
+            // Иначе показываем список дежурств и заполняем его данными
+            if (noDataBlock) noDataBlock.style.display = 'none';
+            
+            // Создаем новый список, если его нет
+            let newDutyList = dutyList;
+            if (!newDutyList) {
+                newDutyList = document.createElement('ul');
+                newDutyList.className = 'duty-list';
+                newDutyList.id = 'duty-list';
+                document.getElementById('duties-content').appendChild(newDutyList);
+            }
+            
+            // Очищаем текущий список
+            newDutyList.innerHTML = '';
+            
+            // Добавляем элементы в список
+            duties.forEach(duty => {
+                const listItem = document.createElement('li');
+                listItem.className = 'duty-item';
+                
+                listItem.innerHTML = `
+                    <div class="duty-icon">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div class="duty-info">
+                        <span class="duty-date">${duty.date}</span>
+                        <span class="duty-weekday">${duty.weekday}</span>
+                    </div>
+                `;
+                
+                newDutyList.appendChild(listItem);
+            });
+            
+            // Показываем список
+            newDutyList.style.display = 'block';
+        }
+        
+        // Функция для обновления элементов пагинации
+        function updatePagination(pagination) {
+            // Обновляем информацию о текущей странице
+            document.getElementById('current-page').textContent = pagination.current_page;
+            document.getElementById('total-pages').textContent = pagination.total_pages;
+            
+            // Обновляем элементы управления пагинацией
+            const paginationControls = document.getElementById('pagination-controls');
+            if (!paginationControls) return;
+            
+            let paginationHTML = '';
+            
+            // Кнопки "в начало" и "предыдущая"
+            if (pagination.has_previous) {
+                paginationHTML += `
+                    <a href="javascript:void(0)" class="page-link" data-page="1"><i class="fas fa-angle-double-left"></i></a>
+                    <a href="javascript:void(0)" class="page-link" data-page="${pagination.previous_page}"><i class="fas fa-angle-left"></i></a>
+                `;
+            } else {
+                paginationHTML += `
+                    <span class="page-link disabled"><i class="fas fa-angle-double-left"></i></span>
+                    <span class="page-link disabled"><i class="fas fa-angle-left"></i></span>
+                `;
+            }
+            
+            // Нумерация страниц
+            pagination.page_range.forEach(num => {
+                if (num === pagination.current_page) {
+                    paginationHTML += `<span class="page-link active" data-page="${num}">${num}</span>`;
+                } else if (num > pagination.current_page - 3 && num < pagination.current_page + 3) {
+                    paginationHTML += `<a href="javascript:void(0)" class="page-link" data-page="${num}">${num}</a>`;
+                }
+            });
+            
+            // Кнопки "следующая" и "в конец"
+            if (pagination.has_next) {
+                paginationHTML += `
+                    <a href="javascript:void(0)" class="page-link" data-page="${pagination.next_page}"><i class="fas fa-angle-right"></i></a>
+                    <a href="javascript:void(0)" class="page-link" data-page="${pagination.total_pages}"><i class="fas fa-angle-double-right"></i></a>
+                `;
+            } else {
+                paginationHTML += `
+                    <span class="page-link disabled"><i class="fas fa-angle-right"></i></span>
+                    <span class="page-link disabled"><i class="fas fa-angle-double-right"></i></span>
+                `;
+            }
+            
+            paginationControls.innerHTML = paginationHTML;
+        }
+    });
+</script>
+
+<style>
+    .success-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: #4CAF50;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out forwards;
+    }
+    
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+</style>
+{% endblock %}

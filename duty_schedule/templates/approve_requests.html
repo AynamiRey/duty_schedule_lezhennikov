@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Запросы на регистрацию{% endblock %}
+
+{% block content %}
+<h2>Запросы на регистрацию</h2>
+<ul>
+    {% for req in requests %}
+    <li>
+        {{ req.username }} ({{ req.email }})
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="request_id" value="{{ req.id }}">
+            <button type="submit" name="action" value="approve" class="btn btn-success">Подтвердить</button>
+            <button type="submit" name="action" value="reject" class="btn btn-danger">Отклонить</button>
+        </form>
+    </li>
+    {% empty %}
+    <li>На данный момент запросов на регистрацию нет.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

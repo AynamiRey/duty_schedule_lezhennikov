@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Главная страница{% endblock %}
+
+{% block content %}
+<div class="home-content">
+    <h1>Добро пожаловать в систему управления дежурствами!</h1>
+    <p>Это приложение помогает организовать график дежурств для вашей команды.</p>
+    <p>
+        {% if not user.is_authenticated %}
+            <a href="{% url 'login' %}" class="btn">Войти</a>
+            <a href="{% url 'register' %}" class="btn">Зарегистрироваться</a>
+        {% endif %}
+    </p>
+</div>
+{% endblock %}

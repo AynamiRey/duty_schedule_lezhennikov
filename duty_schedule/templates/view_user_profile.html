@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Просмотр профиля пользователя</h2>
+<table border="1" style="border-collapse: collapse; width: 50%;">
+    <tr>
+        <th>Логин</th>
+        <td>{{ user_info.username }}</td>
+    </tr>
+    <tr>
+        <th>Имя</th>
+        <td>{{ user_info.first_name }}</td>
+    </tr>
+    <tr>
+        <th>Фамилия</th>
+        <td>{{ user_info.last_name }}</td>
+    </tr>
+    <tr>
+        <th>Email</th>
+        <td>{{ user_info.email }}</td>
+    </tr>
+    <tr>
+        <th>Отчество</th>
+        <td>{{ user_info.middle_name }}</td>
+    </tr>
+    <tr>
+        <th>Дата рождения</th>
+        <td>{{ user_info.birth_date }}</td>
+    </tr>
+    <tr>
+        <th>Должность</th>
+        <td>{{ user_info.position }}</td>
+    </tr>
+    <tr>
+        <th>Звание</th>
+        <td>{{ user_info.rank }}</td>
+    </tr>
+</table>
+<a href="{% url 'admin_dashboard' %}" class="btn">Назад</a>
+{% endblock %}
